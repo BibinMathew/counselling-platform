@@ -1,0 +1,360 @@
+Counseling Web Platform
+
+Product requirements, architecture, modules and Codex implementation plan | Version 1.0 | 17 November 2026
+
+Status: Working specification. Confirm open decisions before production launch. Inspired by the broad category of Oppam.me; not a reproduction of its proprietary design or functionality.
+
+1. Product vision and MVP scope
+
+Build a mobile-friendly, web-first counseling booking platform for an initial roster of 2–3 counselors. Customers browse counselors, select published time slots, authenticate by mobile OTP, pay per appointment, receive a Google Meet link, attend a one-to-one session, and optionally provide feedback. Counselors publish availability and manage booked sessions; administrators oversee the platform.
+
+2. Confirmed product decisions
+
+Area | Decision
+
+Channel | Responsive web application first; no native Android/iOS app for MVP
+
+Sessions | One-to-one via Google Meet; no embedded Agora calling initially
+
+Discovery | Customers directly select counselors; no matching algorithm
+
+Duration | 45-minute session + 15-minute buffer; configurable
+
+Price | ₹699 per session, uniform across counselors; configurable
+
+Booking window | From 1 hour before start to 10 days ahead; configurable
+
+Payment | Pay during booking; appointment confirmed only after verified success
+
+Rescheduling | Customer may reschedule once, at least 24 hours before start
+
+Cancellation | No customer-initiated cancellation or routine refunds
+
+No-show | Detailed handling deferred; no automatic refund
+
+Availability | Counselors and admins can publish/change unbooked slots; confirmed bookings protected
+
+Confirmation | Published slot + verified payment automatically confirms; no manual counselor acceptance
+
+Login | Customer phone number + OTP; preferred name/pseudonym permitted
+
+Email | Collect for booking confirmations, Meet link, reminders
+
+Reminders | Customer email at 24 hours and 1 hour before, skipping past-due reminders
+
+Counselor alerts | WhatsApp on new bookings; reminders as appropriate
+
+History | Multiple future bookings allowed; past/upcoming history and Book Again
+
+Switching | Customer can book any counselor
+
+Ratings | 1–5 stars and optional written feedback; admin-only initially
+
+Notes | Confidential counselor session notes, not automatically shared across counselors
+
+Messaging | Text-only customer–counselor messaging after confirmed booking; no instant response promise
+
+Ages | Broad audience desired, including teenagers; age/guardian safeguards must be designed before launch
+
+
+
+3. User roles and permissions
+
+Visitor: view landing page, counselor profiles, general information and available slots; cannot access private data.
+
+Customer: OTP login; maintain preferred name, contact email and bookings; pay, reschedule once, join sessions, message booked counselor, submit feedback.
+
+Counselor: login; edit their availability; view assigned appointments; access only authorized private messages and their own clinical notes; cannot unilaterally alter confirmed bookings.
+
+Admin: manage counselors, pricing, scheduling configuration, bookings, exception workflows, notifications and private ratings; clinical notes excluded from routine admin access.
+
+4. Detailed functional requirements
+
+4.1 Public website and counselor discovery
+
+Home page with clear service description, how it works, counselor directory, pricing, FAQs, privacy and support links.
+
+Counselor cards/profile pages: preferred display name, photo, qualifications, experience, specializations, languages, 45-minute session, ₹699 price, available slots.
+
+Responsive and accessible UI; timezone shown as Asia/Kolkata initially.
+
+Visitors may browse and select a slot before being prompted to authenticate.
+
+4.2 Authentication and customer profile
+
+Phone OTP sign-up/sign-in with rate limits, expiration, abuse prevention and Indian SMS delivery configuration.
+
+Preferred name/pseudonym accepted; collect email at first booking; verify email where practical.
+
+Role-based authorization; no trust in browser-provided role or customer ID.
+
+Age and guardian-consent workflow is an unresolved launch gate for minors.
+
+4.3 Counselor availability
+
+Counselor and admin can add recurring weekly hours, date-specific openings, holidays and blocked dates.
+
+Generate slots from 45-minute sessions plus 15-minute buffer; avoid overlapping sessions and buffers.
+
+Counselor may edit/delete unbooked availability only; booked times require admin exception workflow.
+
+Show only slots within 1 hour–10 days of current time; store UTC timestamps and display local timezone.
+
+4.4 Booking and rescheduling
+
+Authenticated customer chooses counselor/slot and starts checkout; hold slot temporarily (proposed default 10 minutes, adjustable).
+
+Use database-enforced uniqueness/exclusion constraints and transactions to avoid race conditions and double booking.
+
+On verified payment success, create/confirm appointment exactly once; on timeout/failure release hold safely.
+
+Allow multiple appointments per customer, but reject overlapping customer bookings.
+
+One customer reschedule allowed if requested >=24 hours before original session; preserve payment and audit old/new slot.
+
+Customer cannot cancel; admin handles counselor unavailability, failed Meet creation, payment anomalies and other exceptions.
+
+Status lifecycle proposal: HELD → PAYMENT_PENDING → CONFIRMED → COMPLETED / NO_SHOW / ADMIN_EXCEPTION; EXPIRED / PAYMENT_FAILED for abandoned checkouts.
+
+4.5 Payments
+
+Razorpay checkout for ₹699 per appointment; create order server-side, never accept client-supplied price.
+
+Verify signatures/webhooks server-side; idempotent payment processing, unique provider event IDs, reconciliation job.
+
+Record payment attempts, transactions, booking linkage, payment state and gateway references.
+
+Define manual refund/credit and statutory exception handling separately even if ordinary customer cancellation is disabled.
+
+Do not store raw card information.
+
+4.6 Google Meet and notifications
+
+For MVP, admin can manually attach a unique Meet link to each confirmed appointment; customer sees it in My Appointments and receives email.
+
+Optional later automation via authorized Google Calendar integration; design MeetingProvider interface now.
+
+Email booking confirmation and 24-hour/1-hour reminders; skip reminders that are already past; use queue/cron with retries and deduplication.
+
+WhatsApp Business templates for counselor booking alerts; ensure appropriate consent and minimal personal data.
+
+Handle link not yet available: show confirmation with “meeting link will follow,” and notify admin until resolved.
+
+4.7 Counselor workspace, notes and messages
+
+Counselor dashboard: upcoming sessions, calendar availability editor, assigned booking details and Meet link.
+
+Text-only messaging available only between a customer and counselor with a confirmed booking; define messaging lifetime and abuse/reporting policy before release.
+
+Counselor notes tied to a session and counselor; restrict access with server checks and database row-level security; no automatic sharing on counselor switch.
+
+No session recording by default; define consent, encryption, retention, deletion, breach response and access logging.
+
+4.8 Customer portal, feedback and administration
+
+My Appointments: upcoming/past, status, Join Meet, one-time reschedule, Book Again, counselor switch and feedback.
+
+After completed session: optional 1–5 rating and written feedback; private to admin initially.
+
+Admin: counselor CRUD, qualifications verification, pricing and scheduling settings, calendar oversight, bookings, payment reconciliation, exceptions, notification delivery and feedback.
+
+Audit all privileged actions and appointment status changes.
+
+5. Recommended technology stack
+
+Layer | Recommendation | Notes
+
+UI and application | Next.js + React + TypeScript | App Router; server-side actions/API routes for privileged operations
+
+Database and identity | Supabase PostgreSQL + Auth | OTP via configured SMS provider; migrations and RLS
+
+Hosting | Vercel | Separate dev/staging/production environments
+
+Payments | Razorpay | Verified webhooks; idempotency
+
+Calls | Google Meet | Manual link first; Calendar OAuth later
+
+Email | Resend or comparable transactional email | Domain verification and delivery logs
+
+Counselor alerts | WhatsApp Business provider | Template approval, consent and costs
+
+Background jobs | Managed scheduler + durable jobs | Retries, idempotency, monitoring
+
+Source control | GitHub | Small reviewed commits, branch protection later
+
+Development | VS Code + Codex on Mac | Incremental implementation and automated tests
+
+
+
+Architecture rule: use a modular monolith. Browser may use narrowly scoped Supabase queries with strict RLS; all payments, scheduling mutations, notes authorization and third-party credentials must pass through trusted server-side logic. Never expose service-role credentials to the browser.
+
+6. Module inventory and build order
+
+Phase | Module | Deliverable / exit criteria
+
+0 | Foundation | Next.js setup, lint, tests, CI, environments, migrations, shared types, audit conventions
+
+1 | Identity & roles | OTP login, profile, counselor/admin role access, authorization tests
+
+2 | Counselor catalog | Admin-managed counselor profiles; public directory and profile pages
+
+3 | Availability | Counselor/admin calendar, slot generation, buffer and booking-window rules
+
+4 | Bookings | Atomic holds, booking lifecycle, conflicts, one-time rescheduling
+
+5 | Payments | Razorpay checkout, verified webhooks, reconciliation and idempotency
+
+6 | Meet + notifications | Meeting link workflow, customer emails, counselor WhatsApp, reminders
+
+7 | Customer portal | My Appointments, history, join link, Book Again
+
+8 | Counselor workspace | Upcoming sessions, messaging, confidential notes
+
+9 | Feedback + admin | Private ratings, operational dashboards, exception handling
+
+10 | Hardening + launch | Security, accessibility, privacy, backups, monitoring, load and end-to-end tests
+
+
+
+7. Initial data model (proposed)
+
+profiles(id, auth_user_id, role, display_name, phone, email, created_at)
+
+counselors(id, profile_id, bio, qualifications, languages, specialties, photo_path, active)
+
+availability_rules(id, counselor_id, weekday, start_time, end_time, timezone)
+
+availability_exceptions(id, counselor_id, date, type, time_range)
+
+slot_holds(id, counselor_id, start_at, end_at, customer_id, expires_at, state)
+
+appointments(id, customer_id, counselor_id, start_at, end_at, status, reschedule_count, meeting_url, original_appointment_id)
+
+payments(id, appointment_id, gateway_order_id, gateway_payment_id, amount_paise, currency, status)
+
+payment_events(id, gateway_event_id UNIQUE, payload_reference, processed_at)
+
+notifications(id, appointment_id, recipient_id, channel, template, scheduled_at, sent_at, status)
+
+messages(id, customer_id, counselor_id, appointment_id, sender_id, body, created_at)
+
+session_notes(id, appointment_id, counselor_id, encrypted_content, updated_at)
+
+feedback(id, appointment_id UNIQUE, rating, comment, created_at)
+
+audit_events(id, actor_id, action, object_type, object_id, occurred_at)
+
+Model is a starting point, not a final migration. Codex must define foreign keys, indexes, retention policy, unique constraints, RLS policies and a robust no-overlap database mechanism before implementing bookings.
+
+8. Cross-cutting requirements and quality gates
+
+Privacy: explicit privacy notice and consent; minimal sensitive data; no public disclosure of counseling history; strict RLS and server authorization.
+
+Security: secrets server-side; CSRF/session protection as applicable, OTP abuse controls, webhook verification, audit logs and secure backups.
+
+Reliability: retryable notifications, alert on failed meeting link, payment reconciliation and no duplicate confirmation.
+
+Accessibility: mobile-first, keyboard navigable, accessible forms, legible typography and error messages.
+
+Testing: unit tests for slot rules, integration tests for DB concurrency, payment webhook replay, authorization and rescheduling; E2E tests for booking journey.
+
+Operations: error monitoring, audit trail, staging environment, backup/restore drill and incident support contact.
+
+Safeguarding: minors/guardian consent, counselor credential checks, emergency/crisis messaging, abuse reporting and boundaries for non-emergency messaging.
+
+9. Acceptance scenarios Codex must test
+
+Two customers attempt to pay for the same counselor/time: at most one confirmed booking; other payment/hold handled safely.
+
+Payment succeeds but webhook arrives twice or late: exactly one confirmed appointment; reconciliation resolves pending states.
+
+Customer attempts reschedule at 23h59m or second reschedule: rejected; at >=24h and first time: allowed if slot available.
+
+Counselor removes an unbooked slot: allowed; attempts to remove a confirmed slot: denied.
+
+Customer attempts to access another customer’s booking or another counselor’s notes: denied server-side and via RLS.
+
+Booking made 70 minutes before session: 24h reminder skipped; 1h reminder scheduled appropriately.
+
+Missing/failed Meet link creation: appointment remains visible; admin alert and recovery path.
+
+Counselor switches or customer changes counselor: prior confidential notes remain inaccessible to new counselor.
+
+10. Open product decisions — discuss before launch
+
+Priority | Question / recommendation
+
+Critical | Who is eligible to provide counseling? Verify qualifications and distinguish clinical therapy from general supportive counseling.
+
+Critical | Minors: minimum age, guardian consent, confidentiality, safeguarding and applicable Indian privacy requirements; do not launch minor bookings without review.
+
+Critical | What happens if counselor cancels, misses a session, is late or technical issues prevent a call? Define rebooking/refund exceptions and support SLAs.
+
+High | Who creates Meet links and from which authorized Google account? Manual vs Calendar integration, unique link policy and access controls.
+
+High | Counselor payout calculation, payment settlement, tax invoicing/GST, and reconciliation.
+
+High | Counselor onboarding, credential verification, acceptance of terms and code of conduct.
+
+High | Messaging: permitted time window, expected response time, emergency disclaimer, moderation/reporting and retention.
+
+High | Counselor notes: patient consent, retention, access requests, deletion and cross-counselor sharing policy.
+
+Medium | Exact booking hold duration (10 min proposed), timezone policy and slot publication behavior.
+
+Medium | Customer support contact, complaints, disputes, coupon/discount policy and invoices.
+
+Medium | Whether customer email must be verified and whether WhatsApp alerts require opt-in.
+
+
+
+11. Codex execution contract — paste into project instructions
+
+You are building a production-minded MVP from this specification. Work ONE module at a time in the specified order. Before coding, read the full spec, inspect the repository and propose a concise plan for the next module. Do not implement later modules without approval. For every module: (1) define interfaces and database migration; (2) implement secure server logic and RLS; (3) implement responsive UI; (4) add unit/integration/E2E tests where appropriate; (5) run lint, typecheck and tests; (6) summarize changed files, commands, security considerations and unresolved questions; (7) stop for human review and Git commit. Never invent policy decisions; flag open items. Never expose secrets or service-role keys to the client. Use feature flags or stubs for unconfigured external providers. Keep architecture modular, avoid premature microservices and document every non-obvious design choice.
+
+12. Suggested first Codex prompt
+
+Read Counseling_Platform_PRD_and_Codex_Plan.docx and create only Phase 0 (Foundation). Set up a Next.js TypeScript App Router project with Supabase client/server separation, environment validation, ESLint, formatting, Vitest, Playwright skeleton, GitHub Actions CI, database migration structure, README and an architecture decision record. Add placeholder pages for customer, counselor and admin without implementing business features. Do not connect live payments or send notifications. Provide setup steps for Mac and stop after tests pass for my review.
+
+Document owner: product founder. Review status: requirements compiled from conversation; not yet legally, clinically or security approved.
+
+======================================================================
+13. BUSINESS OPERATIONS AND COUNSELOR RECRUITMENT (NOV 17 ADDENDUM)
+======================================================================
+CONFIRMED BUSINESS PILOT DECISIONS
+- Founder operates the business alongside a full-time job.
+- Initial roster: approximately 2-3 counselors; recruitment may target 3-5 qualified candidates.
+- Consider a part-time operations/marketing assistant at a proposed budget of INR 10,000/month, subject to candidate availability and applicable employment requirements.
+- Assistant coordinates job postings, candidate outreach, interview scheduling, social media content, basic advertising coordination, customer support and booking operations.
+- Founder retains final counselor selection, budgets, finance approvals and escalation authority.
+- Counselor compensation: INR 400 per completed 45-minute session; no minimum guaranteed income in pilot. This is a proposed commercial rate, not verified market pricing.
+- Customer price: INR 699 per booked session. Gross platform spread: INR 299 before gateway charges, taxes, refunds/exception costs, marketing, staff, hosting and other expenses.
+- Counselors choose and publish their own open appointment slots, with admin override.
+
+COUNSELOR SOURCING PROCESS
+1. Post flexible part-time roles on LinkedIn, Indeed and relevant professional networks.
+2. Seek referrals from psychology departments, alumni and qualified practitioners in Kerala.
+3. Contact Malayalam-speaking professionals already offering online sessions.
+4. Operations assistant collects applications, coordinates availability and schedules interviews.
+5. Founder and an appropriately qualified clinical reviewer assess fit and competence.
+6. Verify qualifications, applicable registrations, identity, references, practice scope and safeguarding readiness before activation.
+7. Complete written service agreement including compensation, confidentiality, incident handling, scheduling, payment and termination terms.
+
+IMPORTANT OPEN BUSINESS AND SAFETY DECISIONS
+- Define the exact service scope: general counseling vs clinical mental-health treatment; verify professional credential and advertising requirements for each.
+- Determine minor consent, age assurance, safeguarding, crisis escalation and emergency contact policies before accepting under-18 bookings.
+- Determine counselor no-show/cancellation remedy, customer no-show policy, payment disputes and legally compliant refund handling. 'No customer cancellations/refunds' is a desired product rule, not a substitute for statutory consumer rights or payment-network obligations.
+- Determine counselor payout cadence, invoices/tax treatment, financial reconciliation and any withholding requirements.
+- Decide whether counselor notes should be included in the first launch; establish privacy notice, consent, retention/deletion, breach handling, access controls and incident response before storing clinical information.
+- Define message availability, response-time expectations, crisis disclaimers and abuse-reporting flow.
+- Decide on use of Google Calendar OAuth versus manually assigned Google Meet links for the pilot.
+- Determine how to deliver OTPs and WhatsApp notifications in India, including vendor pricing, consent and approved templates.
+
+CODEX IMPLEMENTATION RULES
+- Treat this document as product requirements, not authorization to invent unconfirmed policies.
+- First produce an implementation plan and questions for unresolved launch blockers; do not code all modules in one request.
+- Implement one module per iteration, with database migrations, tests, authorization checks, and acceptance criteria.
+- Use Git commits after each verified module; never expose service-role keys or payment secrets in client code.
+- Enforce slot locks, rescheduling eligibility, and payment confirmation on the server/database.
+- Maintain README, architecture notes, .env.example, migrations, tests and a decision log.
+- Do not enable real payment collection or real patient/counseling data until security, legal and operational launch gates have been reviewed.
