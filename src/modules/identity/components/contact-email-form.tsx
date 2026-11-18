@@ -5,19 +5,23 @@ import { completeContactEmail, type IdentityActionState } from "@/modules/identi
 
 const initialState: IdentityActionState = { status: "idle", message: "" };
 
-export function ContactEmailForm() {
+export function ContactEmailForm({ next }: { next?: string | null }) {
   const [state, action, pending] = useActionState(completeContactEmail, initialState);
 
   if (state.status === "success") {
     return (
       <p role="status">
-        {state.message} <a href="/profile">Continue to profile</a>
+        {state.message}{" "}
+        <a href={next ?? "/profile"}>
+          {next ? "Continue to selected time" : "Continue to profile"}
+        </a>
       </p>
     );
   }
 
   return (
     <form action={action}>
+      <input type="hidden" name="next" value={next ?? ""} />
       <label htmlFor="contactEmail">Email address</label>
       <input
         id="contactEmail"

@@ -9,7 +9,7 @@ import {
 
 const initialState: IdentityActionState = { status: "idle", message: "" };
 
-export function LoginForm() {
+export function LoginForm({ next }: { next?: string | null }) {
   const [requestState, requestAction, requestPending] = useActionState(
     requestPhoneOtp,
     initialState,
@@ -53,6 +53,7 @@ export function LoginForm() {
           <form action={verifyAction}>
             <input name="phone" type="hidden" value={requestState.phone} />
             <input name="preferredName" type="hidden" value={requestState.preferredName ?? ""} />
+            <input name="next" type="hidden" value={next ?? ""} />
             <label htmlFor="otp">One-time code</label>
             <input
               id="otp"

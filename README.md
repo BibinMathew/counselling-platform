@@ -1,6 +1,6 @@
 # Counseling Platform
 
-A responsive counseling booking platform built as a modular Next.js monolith. Phase 0 foundation, Phase 1 identity/roles, Phase 2 counselor catalog, and Phase 3 availability are implemented locally. Contact email is captured once after phone OTP, without email verification or email OTP. Bookings, payments, messaging, notes, and session operations remain unimplemented.
+A responsive counseling booking platform built as a modular Next.js monolith. Phases 0–4 implement foundation, identity, counselor catalog, availability, and pending booking holds locally. Contact email is captured once after phone OTP, without email verification or email OTP. Payment-backed confirmation, messaging, notes, and session operations remain unimplemented.
 
 ## Requirements
 
@@ -39,6 +39,8 @@ pnpm dev
 
 Open <http://localhost:3000>. The public page does not require Supabase configuration. For local sign-in and role routes, start Docker Desktop and the local Supabase stack:
 
+`supabase db reset` destroys local database contents. Use `supabase migration up` instead when preserving existing local data.
+
 ```sh
 supabase start 2>&1 | sed -E 's/(ANON_KEY|SERVICE_ROLE_KEY|SECRET_KEY|JWT_SECRET|PUBLISHABLE_KEY).*/\1=[REDACTED]/g'
 supabase db reset
@@ -57,7 +59,7 @@ Local Auth accepts only the fixed test phone/OTP pairs in `supabase/config.toml`
 
 After the first successful phone OTP, accounts without a contact email must complete `/complete-profile` before entering protected areas. The email is captured once and is not verified or used to authenticate. No email OTP is sent.
 
-Visitors can browse `/counselors` and see available times on published profiles. Counselors manage their own weekly hours and date exceptions at `/counselor/availability`; admins manage counselor schedules and global settings from the admin area. Times use Asia/Kolkata. Admins manage profiles at `/admin/counselors`, using counselor-role account IDs and approved HTTPS image links. Unpublished profiles and linked account IDs are not public. External image hosts receive visitors' image requests. Displayed times are not reservations; booking is not implemented.
+Visitors can browse `/counselors` and select available times on published profiles. Signed-in customers can create temporary holds and see them at `/bookings`; a hold is not a confirmed appointment and payment is not yet available. Counselors manage their own weekly hours and date exceptions at `/counselor/availability`; admins manage schedules and hold settings from the admin area. Times use Asia/Kolkata. Admins manage profiles at `/admin/counselors`, using counselor-role account IDs and approved HTTPS image links. Unpublished profiles and linked account IDs are not public. External image hosts receive visitors' image requests.
 
 ## Checks
 
@@ -75,7 +77,7 @@ Playwright starts the app automatically. Its OTP journey requires local Supabase
 
 ## Architecture
 
-The app is one Next.js App Router application with domain modules added incrementally under `src/modules/`. Phase 1 implements phone OTP, one-time contact-email capture, customer-default profiles, a single canonical role, server-side role guards, and database RLS. Phase 2 adds an audited admin catalog and a limited public counselor view. Phase 3 adds audited schedules and server-generated slots with configurable session and booking-window settings. The Supabase browser/server clients are separate; the Next.js 16 Proxy refreshes claims, while server data access and RLS independently authorize requests. No service-role client, production credentials, live SMS, or production connection is configured in the app.
+The app is one Next.js App Router application with domain modules added incrementally under `src/modules/`. Phase 1 implements phone OTP, one-time contact-email capture, customer-default profiles, a single canonical role, server-side role guards, and database RLS. Phase 2 adds an audited admin catalog and a limited public counselor view. Phase 3 adds audited schedules and server-generated slots. Phase 4 adds customer-owned pending holds, database-enforced overlap protections, and one-time rescheduling for confirmed fixtures. The Supabase browser/server clients are separate; the Next.js 16 Proxy refreshes claims, while server data access and RLS independently authorize requests. No service-role client, production credentials, live SMS, or production connection is configured in the app.
 
 Database changes belong in versioned SQL migrations under `supabase/migrations/`. Phase 1 adds profiles, role-audit events, and the one-time contact-email operation. See [ARCHITECTURE.md](ARCHITECTURE.md), [DATABASE.md](DATABASE.md), [DEVELOPMENT.md](DEVELOPMENT.md), [DECISIONS.md](DECISIONS.md), and [PROGRESS.md](PROGRESS.md) for the persistent project record; [ADR 0001](docs/architecture/ADR-0001-modular-monolith.md) and [audit conventions](docs/architecture/audit-conventions.md) capture supporting details. [PROJECT_REQUIREMENTS.txt](PROJECT_REQUIREMENTS.txt) remains the full product specification.
 
@@ -97,6 +99,8 @@ Database changes belong in versioned SQL migrations under `supabase/migrations/`
 │   │   │   ├── counselors/[id]/availability/page.tsx
 │   │   │   ├── counselors/page.tsx
 │   │   │   └── page.tsx
+│   │   ├── book/page.tsx
+│   │   ├── bookings/page.tsx
 │   │   ├── counselors/
 │   │   │   ├── [id]/page.tsx
 │   │   │   └── page.tsx
@@ -122,6 +126,11 @@ Database changes belong in versioned SQL migrations under `supabase/migrations/`
 │   │   │   └── server.ts
 │   │   └── env.ts
 │   ├── modules/
+│   │   ├── booking/
+│   │   │   ├── components/booking-form.tsx
+│   │   │   ├── server/bookings.ts
+│   │   │   ├── actions.ts
+│   │   │   └── return-path.ts
 │   │   ├── availability/
 │   │   │   ├── components/availability-editor.tsx
 │   │   │   ├── server/availability.ts
@@ -152,15 +161,24 @@ Database changes belong in versioned SQL migrations under `supabase/migrations/`
 │   │   ├── 20261119000002_public_counselor_role_filter.sql
 │   │   ├── 20261119000003_catalog_update_privileges.sql
 │   │   ├── 20261120000000_availability.sql
-│   │   └── 20261120000001_public_session_settings.sql
+│   │   ├── 20261120000001_public_session_settings.sql
+│   │   ├── 20261121000000_booking_holds.sql
+│   │   ├── 20261121000001_booking_schedule_protection.sql
+│   │   ├── 20261121000002_booking_customer_list.sql
+│   │   ├── 20261121000003_booking_time_and_audit.sql
+│   │   ├── 20261121000004_reschedule_cutoff.sql
+│   │   └── 20261121000005_booking_participant_locks.sql
 │   ├── tests/
 │   │   ├── availability.test.sql
+│   │   ├── booking_holds.test.sql
+│   │   ├── booking_reschedule.test.sql
 │   │   ├── counselor_catalog.test.sql
 │   │   └── identity_rls.test.sql
 │   ├── config.toml
 │   └── README.md
 ├── tests/
 │   ├── e2e/
+│   │   ├── booking.spec.ts
 │   │   ├── catalog.spec.ts
 │   │   └── homepage.spec.ts
 │   └── unit/

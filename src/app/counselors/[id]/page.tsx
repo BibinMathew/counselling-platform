@@ -10,20 +10,36 @@ import {
 } from "@/modules/availability/server/availability";
 import { getPublicCounselor } from "@/modules/catalog/server/catalog";
 
-export default function CounselorPage({ params }: { params: Promise<{ id: string }> }) {
+export default function CounselorPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ reschedule?: string }>;
+}) {
   return (
     <main className="catalog-page">
       <Link href="/counselors">All counselors</Link>
       <Suspense fallback={<p>Loading profile...</p>}>
-        <CounselorContent params={params} />
+        <CounselorContent params={params} searchParams={searchParams} />
       </Suspense>
     </main>
   );
 }
 
-async function CounselorContent({ params }: { params: Promise<{ id: string }> }) {
+async function CounselorContent({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ reschedule?: string }>;
+}) {
   await connection();
   const { id } = await params;
+  const reschedule = z
+    .string()
+    .uuid()
+    .safeParse((await searchParams).reschedule);
   if (!z.string().uuid().safeParse(id).success) notFound();
   const counselor = await getPublicCounselor(id);
   if (!counselor) notFound();
@@ -77,10 +93,17 @@ async function CounselorContent({ params }: { params: Promise<{ id: string }> })
             <ul>
               {daySlots.map((slot) => (
                 <li key={slot.start_at}>
-                  <time dateTime={slot.start_at}>
-                    {timeFormatter.format(new Date(slot.start_at))}
-                  </time>
-                  –<time dateTime={slot.end_at}>{timeFormatter.format(new Date(slot.end_at))}</time>
+                  <Link
+                    href={`/book?${new URLSearchParams({ counselor: id, start: slot.start_at, ...(reschedule.success ? { reschedule: reschedule.data } : {}) })}`}
+                  >
+                    <time dateTime={slot.start_at}>
+                      {timeFormatter.format(new Date(slot.start_at))}
+                    </time>
+                    –
+                    <time dateTime={slot.end_at}>
+                      {timeFormatter.format(new Date(slot.end_at))}
+                    </time>
+                  </Link>
                 </li>
               ))}
             </ul>

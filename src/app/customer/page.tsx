@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import Link from "next/link";
 import { connection } from "next/server";
 import { requireProfileRole } from "@/modules/identity/server/access";
 
@@ -20,6 +21,12 @@ async function CustomerContent() {
     <>
       <h1>Customer area</h1>
       <p>Signed in as {profile.preferred_name || profile.phone}.</p>
+      <p>
+        <a href="/bookings">Your bookings</a>
+      </p>
+      <p>
+        <Link href="/counselors">Find a counselor</Link>
+      </p>
       <a href="/profile">Profile</a>
     </>
   );

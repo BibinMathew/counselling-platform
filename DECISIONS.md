@@ -27,11 +27,13 @@ This log separates confirmed decisions from proposals and unresolved questions. 
 | Availability uses Asia/Kolkata and returns concrete slot timestamps in UTC                 | Approved for Phase 3      | Weekly and date-specific schedules are local-time rules.                                           |
 | Merge overlapping openings; block times override openings including buffers                | Approved for Phase 3      | Candidate start interval is session duration plus buffer, anchored to merged openings.             |
 | Admin-configurable session duration, buffer, notice, and booking window                    | Approved for Phase 3      | Defaults: 45 minutes, 15 minutes, 60 minutes, and 10 days.                                         |
+| Use an admin-configurable booking hold, defaulting to 10 minutes                           | Approved for Phase 4      | Holds are pending only; no payment or public confirmation bypass.                                  |
+| Protect active holds and confirmed appointments from conflicting schedule changes          | Approved for Phase 4      | Transaction lock and database exclusion constraints enforce conflicts.                             |
+| Reschedule once with the same counselor at least 24 hours before the original appointment  | Approved for Phase 4      | Confirmed appointments use local synthetic fixtures until payment verification exists.             |
 
 ## Proposed, Not Yet Implemented
 
 - Product-specific table shapes and status lifecycle are starting proposals only; design and review migrations when their modules are approved.
-- A 10-minute booking hold is proposed in the requirements, not a finalized decision.
 - Manual Meet-link attachment is the MVP recommendation, but the account, ownership, and access process still needs confirmation.
 
 ## Unresolved
@@ -52,6 +54,7 @@ Do not silently decide these items in code. Resolve them before the feature or l
 - The credential-review process, evidence retention, and revocation policy behind counselor verification references.
 - Whether/when multiple roles per account are needed. If approved, migrate `profiles.role` to a role-membership table and update RLS, RPCs, server guards, and tests.
 - Email verification and safe email-change/recovery policy before sending appointment details or other sensitive content to the captured address.
+- Phase 5 payment verification, late/duplicate payment handling, hold-expiry reconciliation, and payment/refund exceptions.
 
 ## Role Multiplicity Migration Path
 

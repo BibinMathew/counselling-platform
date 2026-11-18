@@ -8,7 +8,9 @@
 
 **Phase 3:** The availability module provides counselor/admin calendars, weekly hours, date-specific openings and blocks, and admin scheduling settings. PostgreSQL generates non-overlapping candidate slots from merged openings, omits blocks, applies the notice/advance window, and returns UTC timestamps for display in Asia/Kolkata. Public slot access is limited to published profiles with a current counselor role. Server actions and database functions verify the actor; schedule changes are audited.
 
-**Planned:** Bookings, payments, notifications/Meet workflow, customer portal, counselor workspace, messaging, notes, feedback, and broader administration remain unimplemented.
+**Phase 4:** The booking module preserves a selected slot through phone login and email completion, then creates a pending hold after server and database validation. PostgreSQL exclusion constraints prevent overlapping counselor ranges including buffers and overlapping customer session ranges. A transaction-level lock serializes hold, reschedule, and availability changes; participant rows are rechecked and locked. Customer-owned confirmed appointments can be rescheduled once with at least 24 hours' notice. Confirmation is tested only with local synthetic fixtures; there is no public confirmation or payment bypass.
+
+**Planned:** Payments, notifications/Meet workflow, full customer portal, counselor workspace, messaging, notes, feedback, and broader administration remain unimplemented.
 
 ## Boundaries
 
@@ -31,7 +33,7 @@ The sequence below follows the requirements and is not a claim that the modules 
 1. Identity and roles (implemented)
 2. Counselor catalog (implemented locally)
 3. Availability (implemented locally)
-4. Bookings
+4. Bookings (implemented locally; payment confirmation deferred)
 5. Payments
 6. Meet and notifications
 7. Customer portal
@@ -45,11 +47,11 @@ Do not split into services unless later measured needs justify that operational 
 
 ## Cross-Cutting Risks
 
-- Booking and payment state must be made concurrency-safe and idempotent at the server/database boundary.
-- Displayed availability is not a reservation. Phase 4 must add transactional holds, database-enforced overlap protection, and restrictions on changes affecting confirmed appointments; none exist yet.
+- Holds and rescheduling use transactional locking and exclusion constraints; payment verification, late payment handling, and idempotent confirmation remain Phase 5 work. The single scheduling lock favors correctness for the initial roster and should be load-tested before scaling.
+- A displayed time is not a reservation until a hold succeeds. Active holds and future confirmed appointments prevent conflicting availability changes. Expired holds disappear immediately from public availability; their stored status is transitioned lazily during a later successful booking operation.
 - Counseling notes, messages, and booking history require strict authorization, data minimization, and defined retention policies before storing real data.
 - The current 18+ self-attestation is a temporary UI/server-action gate, not age verification. Local Auth accepts only fixed test numbers; no production auth or booking is enabled. Resolve age assurance and guardian policy before launch.
 - Since email is intentionally unverified, do not send appointment details or other sensitive information to it without a later approved email-verification policy.
-- The counselor verification reference records an admin attestation; a full credential review workflow and policy remain future work. Publishing availability is not approval to provide sessions; booking is not implemented.
+- The counselor verification reference records an admin attestation; a full credential review workflow and policy remain future work. Publishing availability is not approval to provide sessions; real paid appointments are not enabled.
 - External photo hosts receive visitor requests; approve hosts and privacy implications before production. A published catalog profile is not proof of credential verification or approval to provide sessions.
 - Production SMS, crisis response, exception refunds, messaging boundaries, and privacy/legal review remain unresolved launch gates. See `DECISIONS.md` and `PROJECT_REQUIREMENTS.txt`.

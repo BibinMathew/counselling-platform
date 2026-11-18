@@ -2,6 +2,9 @@ begin;
 create extension if not exists pgtap with schema extensions;
 select plan(49);
 
+update public.bookings set status = 'expired'
+where status in ('held', 'confirmed') and start_at > now();
+
 insert into auth.users (id, aud, role, phone, phone_confirmed_at, raw_user_meta_data, raw_app_meta_data)
 values
   ('11111111-1111-4111-8111-111111111111', 'authenticated', 'authenticated', '+919444444401', now(), '{}', '{}'),

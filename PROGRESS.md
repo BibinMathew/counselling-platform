@@ -2,7 +2,7 @@
 
 ## Current Status
 
-**Phase 3: implemented locally, verified, and awaiting human review.** Phase 2 was accepted by the user. Do not begin Phase 4 without approval.
+**Phase 4: implemented locally, verified, and awaiting human review.** Phase 3 and the Phase 4 plan were approved by the user. Do not begin Phase 5 without approval.
 
 ## Implemented
 
@@ -40,11 +40,19 @@
 - Admin-configurable session, buffer, notice, and advance limits; defaults are 45 minutes, 15 minutes, 60 minutes, and 10 days.
 - Database-generated UTC slots displayed in Asia/Kolkata on published counselor profiles; overlapping openings merge and blocks override sessions and buffers.
 - Server role checks, ownership-aware database functions, RLS for private schedules, and audit records for schedule and settings changes.
-- Slots are informational only. Booking, holds, concurrency protection against appointments, and safeguarding confirmed bookings remain Phase 4 work.
+- At Phase 3 completion, slots were informational only; Phase 4 adds holds and booking protections.
+
+## Phase 4 Implemented
+
+- Visitors select a published slot and return to it after phone login and one-time contact-email completion. Customers can create temporary holds and view their own pending or expired holds.
+- Admin-configurable hold duration defaults to 10 minutes. A hold is not paid or confirmed; payment integration and public confirmation are not implemented.
+- PostgreSQL transaction locking, participant row locks, and exclusion constraints prevent overlapping counselor/buffer and customer session ranges. Active holds and confirmed appointments protect their availability from conflicting schedule changes.
+- Confirmed appointments can be rescheduled once, with the same counselor, at least 24 hours before the original start; only synthetic local tests create confirmed fixtures in Phase 4.
+- Booking lifecycle changes are audited; expired holds are hidden immediately and transitioned during a later successful booking operation.
 
 ## Planned, Not Implemented
 
-- Bookings, payments, notifications/Meet workflow, customer portal, counselor workspace, messaging, notes, feedback, broader admin operations, and launch hardening.
+- Payments and payment-backed confirmation, notifications/Meet workflow, full customer portal, counselor workspace, messaging, notes, feedback, broader admin operations, and launch hardening.
 - Production SMS/email providers, email verification/change flow, production/staging Supabase environments, age verification, and counselor credential-review workflow.
 
 ## Phase 0 Verification Record
@@ -123,6 +131,33 @@ On 2026-11-18, expanded the transactional database tests to cover weekly-hour an
 - The complete browser suite was not rerun because its customer journey changes the existing local test customer's preferred name. No production build or remote CI run was performed for this test-only change.
 - Observed usability issue: after a weekly-hours validation error, the form resets the selected day. The browser test reselects it; this behavior has not been changed.
 
+## Phase 4 Verification Record
+
+Run locally on 2026-11-18 with Node.js `26.13.1`, pnpm `12.21.0`, and local Supabase. Applied booking migrations incrementally with `supabase migration up`; the existing local database was not reset.
+
+| Command/check                                                                                                   | Result                                                                                                             |
+| --------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `pnpm lint` and `pnpm typecheck`                                                                                | Passed.                                                                                                            |
+| `pnpm test`                                                                                                     | Passed; 2 files, 9 unit tests, including OTP action return-path validation.                                        |
+| `pnpm test:integration`                                                                                         | Passed; 5 pgTAP files, 127 assertions.                                                                             |
+| `pnpm exec playwright test --grep-invert 'local customer can sign in and is denied the admin area' --workers=1` | Passed; 4 browser tests, including synthetic booking and concurrency checks.                                       |
+| `pnpm exec playwright test tests/e2e/booking.spec.ts --repeat-each=3 --workers=1`                               | Passed three runs; covers simultaneous same-slot requests, same-customer overlap, and schedule-change versus hold. |
+| `NEXT_DIST_DIR=.next-playwright-3106 pnpm build`                                                                | Passed; isolated production build.                                                                                 |
+| `pnpm format:check` and `git diff --check`                                                                      | Passed after removing build-generated TypeScript include entries.                                                  |
+
+The original customer OTP browser test was excluded because it changes the existing local test customer's preferred name. Booking browser tests use temporary local accounts and synthetic confirmed fixtures, not real SMS or payment; OTP return-path behavior is unit tested. Desktop/mobile booking layout was checked locally. Remote CI and a fresh-database migration replay have not been verified. No hosted service or real customer data was used.
+
+Phase 5 must implement verified payment, immutable pricing/payment linkage, idempotent confirmation, duplicate and late payment handling, and reconciliation. Hold abuse controls, retention, privacy, and recovery procedures remain launch gates. The Phase 3 weekly-hours form reset after validation remains unresolved.
+
+### Additional Booking Coverage
+
+On 2026-11-18, added database checks for anonymous and unauthorized access, incomplete profiles, invalid hold durations and ungenerated slots, protected availability deletion, and attempts to reschedule another customer's known booking ID. Failed rescheduling is checked not to consume the allowed reschedule. The availability suite isolates existing local bookings within a transaction that rolls back.
+
+- `pnpm test:integration`: passed; 5 files, 142 assertions.
+- `pnpm test`: passed; 2 files, 9 tests.
+- The safe browser suite passed 4 tests, including synthetic booking concurrency and admin scheduling. The existing customer OTP test remained excluded to preserve local customer data.
+- `pnpm lint`, `pnpm typecheck`, `pnpm format:check`, and `git diff --check`: passed. A fresh migration replay and remote CI remain unverified.
+
 ## Review Handoff
 
-Review Phase 3 files, slot rules, authorization, documentation, and test record before approving Phase 4. Record any requested corrections here and wait for explicit approval before implementing bookings.
+Review Phase 4 files, concurrency protections, authorization, documentation, and test record before approving Phase 5. Record any requested corrections here and wait for explicit approval before implementing payments.

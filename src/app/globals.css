@@ -264,3 +264,49 @@ a {
   gap: 0.5rem 1rem;
   font-size: 0.85rem;
 }
+
+.booking-page h1 {
+  font-size: 1.75rem;
+  font-weight: 650;
+  line-height: 1.2;
+  margin: 1.5rem 0 1rem;
+}
+.booking-page > p {
+  margin: 0.75rem 0;
+  max-width: 36rem;
+}
+.booking-form {
+  margin: 1.5rem 0 1rem;
+}
+.booking-form button {
+  padding: 0.65rem 1rem;
+  border: 1px solid #17665a;
+  border-radius: 4px;
+  background: #17665a;
+  color: #fff;
+  cursor: pointer;
+}
+.booking-form button:focus-visible {
+  outline: 3px solid #be722e;
+  outline-offset: 2px;
+}
+.booking-form button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+.booking-list {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+.booking-entry {
+  padding: 1rem;
+  border: 1px solid #d5dfda;
+  border-radius: 4px;
+  background: #fff;
+  overflow-wrap: anywhere;
+}
+.booking-entry h2 {
+  font-size: 1.1rem;
+  font-weight: 600;
+}

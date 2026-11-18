@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { normalizeIndianPhone } from "@/modules/identity/phone";
+import { safeBookingReturn } from "@/modules/booking/return-path";
 import type { ProfileRole } from "@/modules/identity/roles";
 import {
   requireAuthenticatedProfile,
@@ -112,7 +113,7 @@ export async function verifyPhoneOtp(
     }
   }
 
-  redirect("/profile");
+  redirect(safeBookingReturn(formData.get("next")) ?? "/profile");
 }
 
 export async function updateOwnProfile(
@@ -155,7 +156,7 @@ export async function completeContactEmail(
   const profile = await requireAuthenticatedProfile();
 
   if (profile.email) {
-    redirect("/profile");
+    redirect(safeBookingReturn(formData.get("next")) ?? "/profile");
   }
 
   const parsedEmail = contactEmailSchema.safeParse(formData.get("email"));

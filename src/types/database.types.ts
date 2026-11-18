@@ -23,10 +23,26 @@ export type AvailabilitySettings = {
   min_notice_minutes: number;
   max_advance_days: number;
 };
+export type BookingSummary = {
+  id: string;
+  counselor_id: string;
+  counselor_name: string;
+  start_at: string;
+  end_at: string;
+  status: "held" | "expired" | "confirmed";
+  hold_expires_at: string;
+  reschedule_count: number;
+};
 
 export type Database = {
   public: {
     Tables: {
+      booking_settings: {
+        Row: { id: boolean; hold_minutes: number };
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
       availability_rules: {
         Row: AvailabilityRule;
         Insert: never;
@@ -126,6 +142,16 @@ export type Database = {
       };
     };
     Functions: {
+      create_booking_hold: {
+        Args: { p_counselor_id: string; p_start_at: string };
+        Returns: string;
+      };
+      reschedule_booking: {
+        Args: { p_booking_id: string; p_counselor_id: string; p_start_at: string };
+        Returns: string;
+      };
+      get_my_bookings: { Args: Record<string, never>; Returns: BookingSummary[] };
+      set_booking_hold_minutes: { Args: { p_hold_minutes: number }; Returns: undefined };
       save_availability_rule: {
         Args: {
           p_counselor_id: string;
