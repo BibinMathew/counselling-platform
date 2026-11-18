@@ -38,7 +38,7 @@ Confirmation | Published slot + verified payment automatically confirms; no manu
 
 Login | Customer phone number + OTP; preferred name/pseudonym permitted
 
-Email | Collect for booking confirmations, Meet link, reminders
+Email | Required once at account creation; used for booking confirmations, Meet link, and reminders; no email OTP
 
 Reminders | Customer email at 24 hours and 1 hour before, skipping past-due reminders
 
@@ -84,7 +84,7 @@ Visitors may browse and select a slot before being prompted to authenticate.
 
 Phone OTP sign-up/sign-in with rate limits, expiration, abuse prevention and Indian SMS delivery configuration.
 
-Preferred name/pseudonym accepted; collect email at first booking; verify email where practical.
+Preferred name/pseudonym accepted; require and collect email once during account creation, not on subsequent sign-ins. Email is not OTP-verified; phone OTP remains the authentication method.
 
 Role-based authorization; no trust in browser-provided role or customer ID.
 

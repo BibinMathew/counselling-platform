@@ -15,6 +15,7 @@
 
 # next.js
 /.next/
+/.next-playwright-*/
 /out/
 
 # production
@@ -36,6 +37,10 @@ yarn-error.log*
 
 # vercel
 .vercel
+
+# supabase local state
+/supabase/.branches/
+/supabase/.temp/
 
 # typescript
 *.tsbuildinfo

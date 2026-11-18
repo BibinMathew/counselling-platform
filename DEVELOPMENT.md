@@ -7,7 +7,8 @@
 - pnpm `12.21.0`, pinned in `package.json`
 - Next.js `16.4.6`, React `19.3.0`, TypeScript `5.9.3`
 - Vitest `5.1.0`, Playwright `1.65.1`, and Prettier `3.10.1`
-- Docker Desktop is not required unless and until local Supabase development is approved.
+- Supabase CLI `3.2.0` and Docker Desktop are required for local Auth/RLS integration tests.
+- No production Supabase project or SMS provider is configured.
 
 ## Install and Run
 
@@ -28,7 +29,38 @@ pnpm install --frozen-lockfile
 pnpm dev
 ```
 
-The current placeholder app is available at <http://localhost:3000>. It does not need `.env.local` or a Supabase connection. `.env.example` contains local placeholder values only.
+The public pages work without `.env.local`. Identity routes require the local Supabase stack and the local URL/publishable key; no service-role key is used by the app.
+
+## Local Auth and Database
+
+Start Docker Desktop, then start the local Supabase services. Redact the CLI's printed local keys in the terminal:
+
+```sh
+setopt pipefail
+supabase start 2>&1 | sed -E 's/(ANON_KEY|SERVICE_ROLE_KEY|SECRET_KEY|JWT_SECRET|PUBLISHABLE_KEY).*/\1=[REDACTED]/g'
+supabase db reset
+pnpm test:integration
+```
+
+Export only the local API URL and publishable key before running the application or auth E2E tests:
+
+```sh
+eval "$(supabase status --output env --override-name api.url=NEXT_PUBLIC_SUPABASE_URL --override-name auth.publishable_key=NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY | sed -n '/^NEXT_PUBLIC_SUPABASE_URL=/p; /^NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=/p')"
+export NEXT_PUBLIC_SUPABASE_URL NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+pnpm dev
+```
+
+The same environment command can precede `pnpm test:e2e`. Only fixed phone/OTP pairs in `supabase/config.toml` work locally; the local SMS provider uses placeholders and sends no SMS. Do not copy test OTP configuration or local service keys to any hosted environment.
+
+After the first successful phone OTP, a profile without contact email is sent to `/complete-profile`. Enter a synthetic address such as `local.customer@example.test`; it is stored once and is not verified. Accounts that already have a contact email are not prompted again. Email OTP is not part of this flow.
+
+To bootstrap the first local admin, first sign in normally with a configured local test phone. Then, as the local project operator, look up that synthetic account's ID in `auth.users` and run the restricted operation:
+
+```sh
+supabase db query "select public.bootstrap_first_admin('AUTH_USER_UUID', 'First local admin bootstrap');"
+```
+
+This operation is not exposed to browser/authenticated roles. It works only when no admin exists and the target has a confirmed phone. No production bootstrap has been performed.
 
 ## Checks
 
@@ -36,13 +68,14 @@ The current placeholder app is available at <http://localhost:3000>. It does not
 pnpm lint
 pnpm typecheck
 pnpm test
+pnpm test:integration
 pnpm exec playwright install chromium
 pnpm test:e2e
 pnpm build
 pnpm format:check
 ```
 
-Playwright starts the development server automatically. Install Chromium once per machine. GitHub Actions runs lint, typecheck, unit tests, the Chromium smoke test, and the production build. Formatting is currently available as a local check.
+Playwright starts the development server automatically. Install Chromium once per machine. GitHub Actions runs lint, typecheck, unit tests, local Supabase RLS tests, the Chromium E2E suite, and the production build. Formatting is checked locally.
 
 ## Module Workflow
 

@@ -16,10 +16,27 @@ jobs:
         with:
           version: 12.21.0
           run_install: false
+      - uses: supabase/setup-cli@v3
+        with:
+          version: 3.2.0
       - run: pnpm install --frozen-lockfile
       - run: pnpm lint
       - run: pnpm typecheck
       - run: pnpm test
+      - run: pnpm format:check
+      - name: Start local Supabase
+        run: |
+          supabase start > "$RUNNER_TEMP/supabase-start.log" 2>&1 || {
+            sed -E 's/(ANON_KEY|SERVICE_ROLE_KEY|SECRET_KEY|JWT_SECRET|PUBLISHABLE_KEY).*/\1=[REDACTED]/g' "$RUNNER_TEMP/supabase-start.log" | tail -n 40
+            exit 1
+          }
+          - run: supabase db reset
+      - run: pnpm test:integration
+      - name: Export local publishable configuration
+        run: |
+          eval "$(supabase status --output env --override-name api.url=NEXT_PUBLIC_SUPABASE_URL --override-name auth.publishable_key=NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY | sed -n '/^NEXT_PUBLIC_SUPABASE_URL=/p; /^NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=/p')"
+          echo "NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL" >> "$GITHUB_ENV"
+          echo "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=$NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY" >> "$GITHUB_ENV"
       - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm test:e2e
       - run: pnpm build

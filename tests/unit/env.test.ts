@@ -6,11 +6,11 @@ describe("Supabase public environment", () => {
     expect(
       parseSupabasePublicEnv({
         NEXT_PUBLIC_SUPABASE_URL: "http://127.0.0.1:54321",
-        NEXT_PUBLIC_SUPABASE_ANON_KEY: "local-development-anon-key",
+        NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "local-development-publishable-key",
       }),
     ).toEqual({
       NEXT_PUBLIC_SUPABASE_URL: "http://127.0.0.1:54321",
-      NEXT_PUBLIC_SUPABASE_ANON_KEY: "local-development-anon-key",
+      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "local-development-publishable-key",
     });
   });
 
@@ -18,7 +18,7 @@ describe("Supabase public environment", () => {
     expect(() =>
       parseSupabasePublicEnv({
         NEXT_PUBLIC_SUPABASE_URL: "not-a-url",
-        NEXT_PUBLIC_SUPABASE_ANON_KEY: "local-development-anon-key",
+        NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "local-development-publishable-key",
       }),
     ).toThrow();
   });
