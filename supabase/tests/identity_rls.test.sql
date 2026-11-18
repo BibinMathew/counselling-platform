@@ -4,6 +4,8 @@ create extension if not exists pgtap with schema extensions;
 
 select plan(27);
 
+update public.profiles set role = 'customer' where role = 'admin';
+
 insert into auth.users (
   id,
   aud,

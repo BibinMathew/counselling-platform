@@ -1,6 +1,6 @@
 # Counseling Platform
 
-A responsive counseling booking platform built as a modular Next.js monolith. Phase 0 foundation and Phase 1 identity/roles are implemented. Contact email is captured once after phone OTP, without email verification or email OTP. Catalog, availability, bookings, payments, messaging, notes, and session operations remain unimplemented.
+A responsive counseling booking platform built as a modular Next.js monolith. Phase 0 foundation, Phase 1 identity/roles, Phase 2 counselor catalog, and Phase 3 availability are implemented locally. Contact email is captured once after phone OTP, without email verification or email OTP. Bookings, payments, messaging, notes, and session operations remain unimplemented.
 
 ## Requirements
 
@@ -10,7 +10,7 @@ A responsive counseling booking platform built as a modular Next.js monolith. Ph
 - Git
 - Docker Desktop and Supabase CLI `3.2.0` for local Auth and RLS tests
 
-Docker is needed only for local Supabase services. The public page, lint, typecheck, unit tests, and build do not require it.
+Docker is needed only for local Supabase services. The homepage, lint, typecheck, unit tests, and build do not require it; the catalog and identity workflows require Supabase.
 
 ## macOS setup
 
@@ -57,6 +57,8 @@ Local Auth accepts only the fixed test phone/OTP pairs in `supabase/config.toml`
 
 After the first successful phone OTP, accounts without a contact email must complete `/complete-profile` before entering protected areas. The email is captured once and is not verified or used to authenticate. No email OTP is sent.
 
+Visitors can browse `/counselors` and see available times on published profiles. Counselors manage their own weekly hours and date exceptions at `/counselor/availability`; admins manage counselor schedules and global settings from the admin area. Times use Asia/Kolkata. Admins manage profiles at `/admin/counselors`, using counselor-role account IDs and approved HTTPS image links. Unpublished profiles and linked account IDs are not public. External image hosts receive visitors' image requests. Displayed times are not reservations; booking is not implemented.
+
 ## Checks
 
 ```sh
@@ -73,7 +75,7 @@ Playwright starts the app automatically. Its OTP journey requires local Supabase
 
 ## Architecture
 
-The app is one Next.js App Router application with domain modules added incrementally under `src/modules/`. Phase 1 implements phone OTP, one-time contact-email capture, customer-default profiles, a single canonical role, server-side role guards, and database RLS. The Supabase browser/server clients are separate; the Next.js 16 Proxy refreshes claims, while server data access and RLS independently authorize requests. No service-role client, production credentials, live SMS, or production connection is configured.
+The app is one Next.js App Router application with domain modules added incrementally under `src/modules/`. Phase 1 implements phone OTP, one-time contact-email capture, customer-default profiles, a single canonical role, server-side role guards, and database RLS. Phase 2 adds an audited admin catalog and a limited public counselor view. Phase 3 adds audited schedules and server-generated slots with configurable session and booking-window settings. The Supabase browser/server clients are separate; the Next.js 16 Proxy refreshes claims, while server data access and RLS independently authorize requests. No service-role client, production credentials, live SMS, or production connection is configured in the app.
 
 Database changes belong in versioned SQL migrations under `supabase/migrations/`. Phase 1 adds profiles, role-audit events, and the one-time contact-email operation. See [ARCHITECTURE.md](ARCHITECTURE.md), [DATABASE.md](DATABASE.md), [DEVELOPMENT.md](DEVELOPMENT.md), [DECISIONS.md](DECISIONS.md), and [PROGRESS.md](PROGRESS.md) for the persistent project record; [ADR 0001](docs/architecture/ADR-0001-modular-monolith.md) and [audit conventions](docs/architecture/audit-conventions.md) capture supporting details. [PROJECT_REQUIREMENTS.txt](PROJECT_REQUIREMENTS.txt) remains the full product specification.
 
@@ -91,8 +93,15 @@ Database changes belong in versioned SQL migrations under `supabase/migrations/`
 ├── src/
 │   ├── app/
 │   │   ├── admin/
+│   │   │   ├── availability/page.tsx
+│   │   │   ├── counselors/[id]/availability/page.tsx
+│   │   │   ├── counselors/page.tsx
+│   │   │   └── page.tsx
+│   │   ├── counselors/
+│   │   │   ├── [id]/page.tsx
 │   │   │   └── page.tsx
 │   │   ├── counselor/
+│   │   │   ├── availability/page.tsx
 │   │   │   └── page.tsx
 │   │   ├── customer/
 │   │   │   └── page.tsx
@@ -113,6 +122,14 @@ Database changes belong in versioned SQL migrations under `supabase/migrations/`
 │   │   │   └── server.ts
 │   │   └── env.ts
 │   ├── modules/
+│   │   ├── availability/
+│   │   │   ├── components/availability-editor.tsx
+│   │   │   ├── server/availability.ts
+│   │   │   └── actions.ts
+│   │   ├── catalog/
+│   │   │   ├── components/counselor-form.tsx
+│   │   │   ├── server/catalog.ts
+│   │   │   └── actions.ts
 │   │   └── identity/
 │   │       ├── components/
 │   │       │   ├── login-form.tsx
@@ -129,13 +146,22 @@ Database changes belong in versioned SQL migrations under `supabase/migrations/`
 ├── supabase/
 │   ├── migrations/
 │   │   ├── 20261117000000_identity_and_roles.sql
-│   │   └── 20261118000000_capture_contact_email_once.sql
+│   │   ├── 20261118000000_capture_contact_email_once.sql
+│   │   ├── 20261119000000_counselor_catalog.sql
+│   │   ├── 20261119000001_public_counselor_view.sql
+│   │   ├── 20261119000002_public_counselor_role_filter.sql
+│   │   ├── 20261119000003_catalog_update_privileges.sql
+│   │   ├── 20261120000000_availability.sql
+│   │   └── 20261120000001_public_session_settings.sql
 │   ├── tests/
+│   │   ├── availability.test.sql
+│   │   ├── counselor_catalog.test.sql
 │   │   └── identity_rls.test.sql
 │   ├── config.toml
 │   └── README.md
 ├── tests/
 │   ├── e2e/
+│   │   ├── catalog.spec.ts
 │   │   └── homepage.spec.ts
 │   └── unit/
 │       ├── env.test.ts

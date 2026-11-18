@@ -8,6 +8,12 @@
 
 **Not implemented:** Booking, counselor activation, credential review workflow, email verification or change flow, age verification, production Auth/SMS/email configuration, and any hosted project connection.
 
+**Phase 2:** Catalog migrations add `counselors`, `counselor_catalog_audit_events`, and the `public_counselors` view. Admins can create, edit, publish, and delete entries linked to counselor-role accounts. Anonymous and authenticated visitors use the view, which excludes drafts, account IDs, and profiles whose linked role is no longer counselor. Under RLS, admins can read catalog entries and counselors can read their own entry. Catalog writes record actor, entry ID, operation, and time, without profile content in audit metadata. Images are HTTPS links chosen by admins; no image storage is added.
+
+**Phase 3:** `availability_rules` stores recurring weekday/local-time openings; `availability_exceptions` stores date-specific openings and blocks, including all-day blocks; `availability_settings` stores global session, buffer, notice, and window settings; `availability_audit_events` records schedule and settings mutations. Recurring schedules use Asia/Kolkata local dates/times, while generated concrete slots are returned as UTC timestamps. The public settings view exposes only scheduling settings. Public slot calculation exposes slots only for published counselors with an active counselor role. Authorized RPCs and RLS restrict schedule reads and writes to the linked counselor or an admin; only admins change settings. Catalog entries with schedule records cannot be deleted until those records are removed.
+
+The slot algorithm merges overlapping or adjacent openings per local date, starts candidate slots at each merged opening, advances by session length plus buffer, requires the entire block to fit, and excludes any block touching the session or buffer. The configured minimum notice and maximum advance apply to slot start times. No appointments or holds exist yet; Phase 4 must enforce overlap and protect confirmed bookings transactionally.
+
 ## Migration Rules
 
 - Add schema changes as reviewed, ordered SQL migrations under `supabase/migrations/` within the approved module that owns them.
@@ -27,7 +33,7 @@ The role audit table is not readable through client APIs. It contains no identit
 
 ## Future Data Model Proposals
 
-The following entities are **proposals from the requirements, not implemented schema**: profiles, counselors, availability rules and exceptions, slot holds, appointments, payments and payment events, notifications, messages, session notes, feedback, and audit events. Their columns and relationships still require migration-level design and review.
+The following entities are **proposals from the requirements, not implemented schema**: slot holds, appointments, payments and payment events, notifications, messages, session notes, feedback, and broader audit events. Their columns and relationships still require migration-level design and review.
 
 Before implementing bookings, decide and test the database mechanism that prevents overlapping counselor appointments and overlapping customer bookings, including slot holds and expiry. Payment-event uniqueness, idempotent confirmation, reschedule limits, and authorization must also be enforced outside client-only logic.
 

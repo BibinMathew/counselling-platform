@@ -29,7 +29,7 @@ pnpm install --frozen-lockfile
 pnpm dev
 ```
 
-The public pages work without `.env.local`. Identity routes require the local Supabase stack and the local URL/publishable key; no service-role key is used by the app.
+The homepage works without `.env.local`. The counselor catalog and identity routes require the local Supabase stack and the local URL/publishable key; no service-role key is used by the app.
 
 ## Local Auth and Database
 
@@ -61,6 +61,12 @@ supabase db query "select public.bootstrap_first_admin('AUTH_USER_UUID', 'First 
 ```
 
 This operation is not exposed to browser/authenticated roles. It works only when no admin exists and the target has a confirmed phone. No production bootstrap has been performed.
+
+For local catalog management, sign in as an admin, grant the counselor role to a separate phone-authenticated test account using an opaque verification reference, then open `/admin/counselors`. Enter that account ID, profile information, and an admin-approved HTTPS image URL. A profile starts as a draft unless Published is checked. `/counselors` displays published profiles only. Use synthetic data locally. External image hosts receive requests directly from visitors; do not use a host without appropriate privacy review.
+
+Counselors manage their own calendar at `/counselor/availability`. Admins open a counselor's availability from `/admin/counselors` and change global session, buffer, notice, and advance settings at `/admin/availability`. Weekly hours and date exceptions use Asia/Kolkata; blocks override openings, including the buffer. Slots are shown on published counselor profile pages. Remove schedule entries before deleting a counselor catalog entry. Slot display does not reserve appointments; booking and protections for confirmed appointments are not yet implemented.
+
+Apply newly added migrations to an existing local database with `supabase migration up`; unlike `supabase db reset`, this does not intentionally delete existing local data. The catalog Playwright test creates and removes synthetic local accounts and obtains its local-only service key from `supabase status`; it refuses a non-local API URL. The application itself does not use this key.
 
 ## Checks
 

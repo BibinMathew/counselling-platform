@@ -4,7 +4,11 @@
 
 **Implemented:** Phase 0 foundation and Phase 1 Identity & Roles. Phone OTP sign-in uses Supabase Auth; a server-created profile has one canonical database role. A profile without contact email is gated after phone verification to a one-time email-completion page. The email is stored as unverified contact data and is not an authentication factor. Profile and role routes use server-side authorization, the Next.js 16 Proxy refreshes/verifies Supabase claims, and RLS protects profile access and updates. Customer, counselor, and admin routes are role-guarded; the admin route can grant roles through an audited database operation.
 
-**Planned:** Counselor catalog, availability, bookings, payments, notifications/Meet workflow, customer portal, counselor workspace, messaging, notes, feedback, and broader administration remain unimplemented.
+**Phase 2:** The catalog module owns admin-managed counselor profiles and public directory/profile pages. Published entries are shown only while the linked account has the counselor role. A public database view exposes catalog fields without account IDs; admin mutations are protected by server guards and RLS and recorded in a catalog audit table. Photos use admin-approved HTTPS links; the price is displayed as ₹699 for now.
+
+**Phase 3:** The availability module provides counselor/admin calendars, weekly hours, date-specific openings and blocks, and admin scheduling settings. PostgreSQL generates non-overlapping candidate slots from merged openings, omits blocks, applies the notice/advance window, and returns UTC timestamps for display in Asia/Kolkata. Public slot access is limited to published profiles with a current counselor role. Server actions and database functions verify the actor; schedule changes are audited.
+
+**Planned:** Bookings, payments, notifications/Meet workflow, customer portal, counselor workspace, messaging, notes, feedback, and broader administration remain unimplemented.
 
 ## Boundaries
 
@@ -25,8 +29,8 @@ See [ADR 0001](docs/architecture/ADR-0001-modular-monolith.md) and [audit conven
 The sequence below follows the requirements and is not a claim that the modules exist:
 
 1. Identity and roles (implemented)
-2. Counselor catalog
-3. Availability
+2. Counselor catalog (implemented locally)
+3. Availability (implemented locally)
 4. Bookings
 5. Payments
 6. Meet and notifications
@@ -42,8 +46,10 @@ Do not split into services unless later measured needs justify that operational 
 ## Cross-Cutting Risks
 
 - Booking and payment state must be made concurrency-safe and idempotent at the server/database boundary.
+- Displayed availability is not a reservation. Phase 4 must add transactional holds, database-enforced overlap protection, and restrictions on changes affecting confirmed appointments; none exist yet.
 - Counseling notes, messages, and booking history require strict authorization, data minimization, and defined retention policies before storing real data.
 - The current 18+ self-attestation is a temporary UI/server-action gate, not age verification. Local Auth accepts only fixed test numbers; no production auth or booking is enabled. Resolve age assurance and guardian policy before launch.
 - Since email is intentionally unverified, do not send appointment details or other sensitive information to it without a later approved email-verification policy.
-- The counselor verification reference records an admin attestation; a full credential review workflow and policy remain future work. No session activation or booking capability exists in Phase 1.
+- The counselor verification reference records an admin attestation; a full credential review workflow and policy remain future work. Publishing availability is not approval to provide sessions; booking is not implemented.
+- External photo hosts receive visitor requests; approve hosts and privacy implications before production. A published catalog profile is not proof of credential verification or approval to provide sessions.
 - Production SMS, crisis response, exception refunds, messaging boundaries, and privacy/legal review remain unresolved launch gates. See `DECISIONS.md` and `PROJECT_REQUIREMENTS.txt`.

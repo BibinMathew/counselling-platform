@@ -21,6 +21,12 @@ This log separates confirmed decisions from proposals and unresolved questions. 
 | Require one-time contact-email capture after the first successful phone OTP                | Approved for Phase 1      | No email OTP; email remains unverified contact data and is not an Auth identity.                   |
 | Use local deterministic OTPs; leave production SMS provider unselected                     | Approved for Phase 1      | Placeholder Twilio config exists only in local Supabase config.                                    |
 | Require an 18+ self-attestation before app OTP request                                     | Temporary Phase 1 gate    | No DOB collected; this is not robust age verification and is not launch approval.                  |
+| Catalog profiles link to counselor-role accounts and require admin publication             | Approved for Phase 2      | Revoking the counselor role hides the public profile.                                              |
+| Use admin-approved HTTPS image links for counselor photos                                  | Approved for Phase 2      | No upload or image storage; hosts receive requests from visitors.                                  |
+| Display ₹699 and 45 minutes for catalog sessions                                           | Approved for Phase 2      | Price stays fixed for now; Phase 3 makes duration configurable.                                    |
+| Availability uses Asia/Kolkata and returns concrete slot timestamps in UTC                 | Approved for Phase 3      | Weekly and date-specific schedules are local-time rules.                                           |
+| Merge overlapping openings; block times override openings including buffers                | Approved for Phase 3      | Candidate start interval is session duration plus buffer, anchored to merged openings.             |
+| Admin-configurable session duration, buffer, notice, and booking window                    | Approved for Phase 3      | Defaults: 45 minutes, 15 minutes, 60 minutes, and 10 days.                                         |
 
 ## Proposed, Not Yet Implemented
 
@@ -40,7 +46,7 @@ Do not silently decide these items in code. Resolve them before the feature or l
 - Messaging lifetime, response expectations, emergency disclaimer, abuse reporting, moderation, and retention.
 - Session-note consent, access, retention, deletion, export, and incident response.
 - OTP, email, and WhatsApp vendors, verification/consent requirements, and operational costs.
-- Customer email verification, timezone/slot publication details, and support/complaint contact.
+- Customer email verification and support/complaint contact; future timezones beyond Asia/Kolkata.
 - Production SMS provider, Indian delivery/compliance setup, CAPTCHA/rate-limit tuning, and provider cost.
 - Whether and how to replace the temporary adult self-attestation with reviewed age assurance and guardian consent before production.
 - The credential-review process, evidence retention, and revocation policy behind counselor verification references.

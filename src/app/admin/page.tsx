@@ -21,6 +21,12 @@ async function AdminContent() {
     <>
       <h1>Admin area</h1>
       <p>Signed in as {profile.preferred_name || profile.phone}.</p>
+      <p>
+        <a href="/admin/counselors">Manage counselors</a>
+      </p>
+      <p>
+        <a href="/admin/availability">Scheduling settings</a>
+      </p>
       <h2>Assign account role</h2>
       <RoleAssignmentForm />
       <a href="/profile">Profile</a>

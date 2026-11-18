@@ -20,7 +20,10 @@ async function CounselorContent() {
     <>
       <h1>Counselor area</h1>
       <p>Signed in as {profile.preferred_name || profile.phone}.</p>
-      <p>Counselor access does not activate session availability; credential review is required.</p>
+      <p>
+        <a href="/counselor/availability">Manage availability</a>
+      </p>
+      <p>Credential review is required before providing sessions.</p>
       <a href="/profile">Profile</a>
     </>
   );
