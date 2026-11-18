@@ -54,8 +54,23 @@ Do not silently decide these items in code. Resolve them before the feature or l
 - The credential-review process, evidence retention, and revocation policy behind counselor verification references.
 - Whether/when multiple roles per account are needed. If approved, migrate `profiles.role` to a role-membership table and update RLS, RPCs, server guards, and tests.
 - Email verification and safe email-change/recovery policy before sending appointment details or other sensitive content to the captured address.
-- Phase 5 payment verification, late/duplicate payment handling, hold-expiry reconciliation, and payment/refund exceptions.
+- Real Razorpay Test Mode validation (keys pending), production capture/refund operations, and payment-provider launch review.
 
 ## Role Multiplicity Migration Path
 
 The MVP stores one role in `profiles.role`. If multi-role accounts are later approved, create a `profile_roles` table with a `(profile_id, role)` unique key, backfill each current role, update database helpers and server guards to test membership, adapt the role audit/RPC contract, deploy compatibility reads, then remove the enum column in a later migration. Do not implement this until the product requires it.
+
+## Phase 5 decisions — approved 18 November 2026
+
+- Implement the local simulator plus Razorpay Test Mode adapter; live keys are rejected. No provider keys were available during implementation.
+- Retry failed or closed checkouts until the original hold deadline, without extending it. One durable provider order per booking fixes provider and price on first checkout.
+- Confirm a late captured payment only if its original future slot remains offered, participants remain eligible, and counselor/customer ranges remain free. Otherwise retain an admin-review exception. The minimum-notice rule is not reapplied to an already purchased late payment; the session must not have started.
+- Use server-controlled global INR price (default ₹699), snapshotted before provider order creation. New prices affect new checkouts only.
+- Confirm captured/paid canonical provider state, never browser success or mere authorization. Event identity/digest, payment identity and unique successful booking linkage provide layered idempotency.
+- Treat external order-create timeouts as uncertain. Recover by exact durable receipt; zero/multiple matches cannot trigger blind recreation.
+- Retain failures/duplicate captures as payment evidence; do not implement automatic refunds, credits, payouts, tax invoices, Meet links, or notifications in this phase.
+- Use an explicitly server-only Supabase service client for ingestion/reconciliation. Payment-specific privileged RPCs remain unavailable to authenticated browser roles.
+- Keep simulator state separate from application order state so missed delivery can be recovered through the same verification pipeline. Simulator is limited to local development/test and loopback Supabase.
+- A five-second customer refresh claim and one-minute reconciliation leases bound provider polling. Deployments must configure their own authenticated reconciliation schedule.
+
+Captured payments already marked for admin review retain that outcome on every replay; no later disappearance of a conflict silently resolves the exception. Unmatched signed event receipts can become linked only after canonical order recovery with the same digest; true identity conflicts remain rejected.

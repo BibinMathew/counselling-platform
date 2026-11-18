@@ -30,13 +30,25 @@ jobs:
             sed -E 's/(ANON_KEY|SERVICE_ROLE_KEY|SECRET_KEY|JWT_SECRET|PUBLISHABLE_KEY).*/\1=[REDACTED]/g' "$RUNNER_TEMP/supabase-start.log" | tail -n 40
             exit 1
           }
-          - run: supabase db reset
+      - run: supabase db reset
       - run: pnpm test:integration
-      - name: Export local publishable configuration
+      - run: pnpm test:migrations
+      - name: Configure local payment tests
         run: |
-          eval "$(supabase status --output env --override-name api.url=NEXT_PUBLIC_SUPABASE_URL --override-name auth.publishable_key=NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY | sed -n '/^NEXT_PUBLIC_SUPABASE_URL=/p; /^NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=/p')"
-          echo "NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL" >> "$GITHUB_ENV"
-          echo "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=$NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY" >> "$GITHUB_ENV"
+          node --input-type=module <<'JS'
+          import {execFileSync} from 'node:child_process';
+          import {appendFileSync} from 'node:fs';
+          import {randomBytes} from 'node:crypto';
+          const s=JSON.parse(execFileSync('supabase',['status','--output','json'],{encoding:'utf8',stdio:['ignore','pipe','ignore']}));
+          const values={NEXT_PUBLIC_SUPABASE_URL:s.API_URL,NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY:s.PUBLISHABLE_KEY,SUPABASE_SERVICE_ROLE_KEY:s.SERVICE_ROLE_KEY,PAYMENT_MODE:'simulator',PAYMENT_SIMULATOR_SECRET:randomBytes(32).toString('hex'),PAYMENT_RECONCILE_SECRET:randomBytes(32).toString('hex')};
+          for(const [key,value] of Object.entries(values)) {
+            if(!value) throw new Error('Missing local test configuration: '+key);
+            if(key.includes('SECRET')||key==='SUPABASE_SERVICE_ROLE_KEY') console.log('::add-mask::'+value);
+            appendFileSync(process.env.GITHUB_ENV,`${key}=${value}\n`);
+          }
+          JS
       - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm test:e2e
       - run: pnpm build
+        env:
+          PAYMENT_MODE: disabled

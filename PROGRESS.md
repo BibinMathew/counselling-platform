@@ -2,7 +2,7 @@
 
 ## Current Status
 
-**Phase 4: implemented locally, verified, and awaiting human review.** Phase 3 and the Phase 4 plan were approved by the user. Do not begin Phase 5 without approval.
+**Phase 5: implemented and verified locally; ready for human review.** The user approved the payment design, late-payment policy and retry behavior. Do not begin Phase 6 without approval.
 
 ## Implemented
 
@@ -52,7 +52,7 @@
 
 ## Planned, Not Implemented
 
-- Payments and payment-backed confirmation, notifications/Meet workflow, full customer portal, counselor workspace, messaging, notes, feedback, broader admin operations, and launch hardening.
+- Notifications/Meet workflow, full customer portal, counselor workspace, messaging, notes, feedback, broader admin operations, and launch hardening.
 - Production SMS/email providers, email verification/change flow, production/staging Supabase environments, age verification, and counselor credential-review workflow.
 
 ## Phase 0 Verification Record
@@ -160,4 +160,40 @@ On 2026-11-18, added database checks for anonymous and unauthorized access, inco
 
 ## Review Handoff
 
-Review Phase 4 files, concurrency protections, authorization, documentation, and test record before approving Phase 5. Record any requested corrections here and wait for explicit approval before implementing payments.
+Phase 5 design was approved by the user on 18 November 2026. Review the Phase 5 delivery and verification record before approving Phase 6.
+
+## Phase 5 implemented
+
+- Added payment/pricing tables, owner/admin RLS, service-only ingestion and audited database confirmation under the existing booking lock.
+- Added Razorpay Test Mode provider transport, raw-body webhook signature checks, callback verification, captured/paid canonical-state checks, durable order creation claims and uncertain-order recovery.
+- Added explicitly local payment simulator with persistent synthetic provider state, checkout controls, replay tools, missed-delivery recovery, and bounded reconciliation.
+- Added customer payment/recheck controls and admin pricing, old exception visibility and reconciliation; current prices are shown consistently and existing orders retain their snapshot.
+- Preserved original hold deadlines across retries; late captured payment confirms only a free, valid future slot, otherwise admin review. Rescheduling preserves payment linkage.
+- Corrected malformed CI database-reset command and added payment browser checks and isolated migration replay. No production service, real customer data, real payment, or provider credentials were used.
+
+### Phase 5 verification — final local record
+
+- Baseline: 9 unit tests passed.
+- `pnpm test`: passed, 5 files and 18 unit tests, including payment signatures, captured/paid checks, provider request contracts/timeouts, body limits, and public-host origin checks.
+- `pnpm test:integration`: passed, 6 SQL files and 203 assertions (61 payment assertions); fixtures rolled back.
+- Simulator browser journey passed: retry, capture, refresh persistence, unauthorized ownership, invalid signature, missed-delivery recovery, signed event replay, mobile overflow, concurrent late captures, callback/reconciliation idempotency, admin exceptions/reconciliation.
+- `pnpm test:migrations`: passed, all 17 migrations replayed in an isolated disposable database.
+- `PLAYWRIGHT_PORT=3110 pnpm test:e2e --grep-invert 'local customer can sign in and is denied the admin area' --workers=1`: passed, 5 browser tests. The excluded older test changes the persistent demo customer profile.
+- `PAYMENT_MODE=disabled NEXT_DIST_DIR=.next-payment-build pnpm build`: passed.
+- `pnpm typecheck`: passed.
+- `pnpm lint`: passed after excluding isolated generated Next build/test outputs.
+- `pnpm format:check` and `git diff --check`: passed.
+- `pnpm payments:local reconcile`: passed against the running app (`checked: 0`, `failed: 0` after fixture cleanup).
+- Browser bundle scan: no configured server-secret values appeared in static JS bundles.
+- Bugs exposed and corrected during testing: Next.js runtime export incompatibility, audit-actor cleanup ordering, internal/public Host mismatch in origin validation, JSONB array lookup, and captured transaction amount transition.
+- Razorpay dashboard/Checkout/Test Mode webhook delivery remains unverified because Test Mode keys are not available. Remote CI has not been run.
+
+### Independent review and corrections
+
+One fresh reviewer inspected payment security, state transitions, concurrency, provider recovery and tests. No Critical issue was found. Two Important recovery findings were reproduced in failing database tests and corrected: captured admin-review outcomes are now terminal under duplicate delivery, and same-digest unmatched events can safely become linked after uncertain-order recovery.
+
+The review also exposed weak origin-only ownership evidence and missing persisted pending/failed status. These were treated as important verification/customer-flow issues: browser tests now supply a valid Origin and compare owner versus foreign-order refresh, and payment-attempt summaries survive refresh. The browser also verifies exact receipt recovery without creating a second simulated provider order. No review finding is deferred.
+
+The first interrupted browser run left one synthetic fixture; it and its four generated accounts were removed using an exact fixture ID plus identity/count guards. Final browser runs cleaned their own fixtures. Existing six demo accounts and four published demo counselor profiles were preserved.
+
+Known non-blocking output: existing Next.js image loading/performance hints and runner color-environment warnings. No real Razorpay checkout, dashboard setup, remote CI or hosted reconciliation schedule was claimed as verified.

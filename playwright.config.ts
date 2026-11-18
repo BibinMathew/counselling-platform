@@ -13,6 +13,7 @@ const serverCommand =
 
 export default defineConfig({
   testDir: "./tests/e2e",
+  outputDir: "./.test-artifacts/playwright",
   fullyParallel: true,
   reporter: "list",
   use: {

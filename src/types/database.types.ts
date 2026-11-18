@@ -34,9 +34,70 @@ export type BookingSummary = {
   reschedule_count: number;
 };
 
+export type PaymentOrderRecord = {
+  id: string;
+  booking_id: string;
+  customer_id: string;
+  provider: "simulator" | "razorpay";
+  amount_paise: number;
+  currency: "INR";
+  external_order_id: string | null;
+  creation_state: "reserved" | "creating" | "ready" | "uncertain";
+  confirmed_payment_id: string | null;
+  review_reason: string | null;
+  created_at: string;
+  updated_at: string;
+  reconciled_at: string | null;
+};
+type ReadOnlyPaymentTable<T> = { Row: T; Insert: never; Update: never; Relationships: [] };
+
 export type Database = {
   public: {
     Tables: {
+      payment_settings: ReadOnlyPaymentTable<{
+        id: boolean;
+        amount_paise: number;
+        currency: "INR";
+      }>;
+      payment_orders: ReadOnlyPaymentTable<PaymentOrderRecord>;
+      payment_transactions: ReadOnlyPaymentTable<{
+        id: string;
+        order_id: string;
+        booking_id: string;
+        provider: string;
+        payment_id: string;
+        state: string;
+        amount_paise: number;
+        currency: string;
+        outcome: string;
+        reason: string | null;
+        updated_at: string;
+      }>;
+      payment_events: ReadOnlyPaymentTable<{
+        id: string;
+        provider: string;
+        event_id: string;
+        payload_digest: string;
+        order_id: string | null;
+        outcome: string;
+        created_at: string;
+      }>;
+      payment_audit_events: ReadOnlyPaymentTable<{
+        id: string;
+        actor_id: string | null;
+        order_id: string | null;
+        action: string;
+        occurred_at: string;
+      }>;
+      payment_simulator_orders: ReadOnlyPaymentTable<{
+        id: string;
+        receipt: string;
+        amount: number;
+        currency: string;
+        status: string;
+        payments: Json;
+      }>;
+
       booking_settings: {
         Row: { id: boolean; hold_minutes: number };
         Insert: never;
@@ -142,6 +203,48 @@ export type Database = {
       };
     };
     Functions: {
+      reserve_payment_order: {
+        Args: { p_booking_id: string; p_provider: string };
+        Returns: PaymentOrderRecord;
+      };
+      claim_payment_order: { Args: { p_order_id: string }; Returns: boolean };
+      attach_payment_order: {
+        Args: { p_order_id: string; p_external_id: string };
+        Returns: undefined;
+      };
+      note_payment_order_problem: {
+        Args: { p_order_id: string; p_reason: string };
+        Returns: undefined;
+      };
+      claim_payment_refresh: { Args: { p_order_id: string }; Returns: boolean };
+      claim_payment_reconciliation: {
+        Args: { p_limit: number; p_provider: string };
+        Returns: PaymentOrderRecord[];
+      };
+      apply_payment_observation: {
+        Args: {
+          p_order_id: string;
+          p_event_id: string;
+          p_digest: string;
+          p_payment_id: string;
+          p_state: string;
+          p_amount: number;
+          p_currency: string;
+        };
+        Returns: string;
+      };
+      record_unmatched_payment_event: {
+        Args: { p_provider: string; p_event_id: string; p_digest: string };
+        Returns: undefined;
+      };
+      simulate_payment_attempt: { Args: { p_order_id: string; p_result: string }; Returns: Json };
+      get_payment_exceptions: { Args: Record<string, never>; Returns: PaymentOrderRecord[] };
+      get_unmatched_payment_events: {
+        Args: Record<string, never>;
+        Returns: { provider: string; event_id: string; outcome: string; created_at: string }[];
+      };
+      set_payment_price: { Args: { p_amount_paise: number }; Returns: undefined };
+
       create_booking_hold: {
         Args: { p_counselor_id: string; p_start_at: string };
         Returns: string;

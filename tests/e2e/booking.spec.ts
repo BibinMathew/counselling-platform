@@ -1,4 +1,4 @@
-import { execFileSync } from "node:child_process";
+import { localDb, localSettings } from "../helpers/local-supabase";
 import { randomInt, randomUUID } from "node:crypto";
 import { createServerClient } from "@supabase/ssr";
 import { createClient } from "@supabase/supabase-js";
@@ -13,12 +13,7 @@ test("customers can hold and reschedule without concurrent conflicts", async ({
     !process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
     "Requires local Supabase",
   );
-  const status = JSON.parse(
-    execFileSync("supabase", ["status", "--output", "json"], {
-      encoding: "utf8",
-      stdio: ["ignore", "pipe", "ignore"],
-    }),
-  ) as Record<string, string>;
+  const status = localSettings();
   if (
     !["127.0.0.1", "localhost"].includes(new URL(status.API_URL).hostname) ||
     status.API_URL !== process.env.NEXT_PUBLIC_SUPABASE_URL ||
@@ -46,12 +41,7 @@ test("customers can hold and reschedule without concurrent conflicts", async ({
       )
     )
       throw new Error("Invalid synthetic identifier.");
-    execFileSync(
-      "supabase",
-      [
-        "db",
-        "query",
-        `do $$ begin
+    localDb(`do $$ begin
       update public.profiles set role = 'admin', email = 'admin@example.test' where id = '${admin.id}';
       update public.profiles set role = 'counselor', email = 'counselor@example.test' where id in ('${counselorOne.id}', '${counselorTwo.id}');
       update public.profiles set email = 'customer@example.test' where id in ('${customerTwo.id}', '${customerThree.id}');
@@ -61,10 +51,7 @@ test("customers can hold and reschedule without concurrent conflicts", async ({
         ('${counselorIds[1]}', '${counselorTwo.id}', 'Booking Test Two', 'Bio', 'Degree', 'Experience', 'Stress', 'English', 'https://example.test/two.jpg', true);
       perform public.save_availability_exception('${counselorIds[0]}', null, (now() at time zone 'Asia/Kolkata')::date + 2, 'opening', false, '10:00', '14:00');
       perform public.save_availability_exception('${counselorIds[1]}', null, (now() at time zone 'Asia/Kolkata')::date + 2, 'opening', false, '10:00', '14:00');
-    end $$;`,
-      ],
-      { stdio: "ignore" },
-    );
+    end $$;`);
 
     const customerClients = [customerTwo, customerThree].map(() =>
       createClient(status.API_URL, status.PUBLISHABLE_KEY, {
@@ -126,7 +113,7 @@ test("customers can hold and reschedule without concurrent conflicts", async ({
     await page.getByRole("button", { name: "Hold this time" }).click({ timeout: 10000 });
     await expect(page).toHaveURL(/\/bookings$/);
     await expect(
-      page.getByText(/Payment is not available; this is not a confirmed appointment/),
+      page.getByText(/This is not a confirmed appointment until payment is verified/),
     ).toBeVisible();
 
     const races = await Promise.all(
@@ -200,14 +187,8 @@ test("customers can hold and reschedule without concurrent conflicts", async ({
     expect(conflictingChanges.filter((result) => !result.error)).toHaveLength(1);
     expect(conflictingChanges.filter((result) => result.error)).toHaveLength(1);
 
-    execFileSync(
-      "supabase",
-      [
-        "db",
-        "query",
-        `update public.bookings set status = 'confirmed' where customer_id = '${customerOne.id}' and counselor_id = '${counselorIds[0]}' and status = 'held'`,
-      ],
-      { stdio: "ignore" },
+    localDb(
+      `update public.bookings set status = 'confirmed' where customer_id = '${customerOne.id}' and counselor_id = '${counselorIds[0]}' and status = 'held'`,
     );
     await page.reload();
     await expect(page.getByText("Confirmed", { exact: true })).toBeVisible();
@@ -221,12 +202,7 @@ test("customers can hold and reschedule without concurrent conflicts", async ({
   } finally {
     if (accounts.length > 0) {
       const accountIds = accounts.map((account) => `'${account.id}'`).join(", ");
-      execFileSync(
-        "supabase",
-        [
-          "db",
-          "query",
-          `do $$ begin
+      localDb(`do $$ begin
         perform set_config('request.jwt.claim.sub', '${accounts[0].id}', true);
         delete from public.booking_audit_events where actor_user_id in (${accountIds}) or booking_id in (select id from public.bookings where counselor_id in ('${counselorIds[0]}', '${counselorIds[1]}'));
         delete from public.bookings where counselor_id in ('${counselorIds[0]}', '${counselorIds[1]}');
@@ -234,10 +210,7 @@ test("customers can hold and reschedule without concurrent conflicts", async ({
         delete from public.availability_audit_events where actor_user_id in (${accountIds});
         delete from public.counselors where id in ('${counselorIds[0]}', '${counselorIds[1]}');
         delete from public.counselor_catalog_audit_events where actor_user_id in (${accountIds});
-      end $$;`,
-        ],
-        { stdio: "ignore" },
-      );
+      end $$;`);
       for (const account of accounts) {
         const deleted = await service.auth.admin.deleteUser(account.id);
         if (deleted.error) throw new Error("Unable to remove a synthetic booking account.");

@@ -1,6 +1,6 @@
 # Counseling Platform
 
-A responsive counseling booking platform built as a modular Next.js monolith. Phases 0–4 implement foundation, identity, counselor catalog, availability, and pending booking holds locally. Contact email is captured once after phone OTP, without email verification or email OTP. Payment-backed confirmation, messaging, notes, and session operations remain unimplemented.
+A responsive counseling booking platform built as a modular Next.js monolith. Phases 0–5 implement foundation, identity, counselor catalog, availability, booking holds, and payment-backed confirmation locally. Contact email is captured once after phone OTP, without email verification or email OTP. Phase 5 includes a local payment simulator and Razorpay Test Mode adapter; real Razorpay testing awaits keys. Messaging, notes, and session operations remain unimplemented.
 
 ## Requirements
 
@@ -59,7 +59,7 @@ Local Auth accepts only the fixed test phone/OTP pairs in `supabase/config.toml`
 
 After the first successful phone OTP, accounts without a contact email must complete `/complete-profile` before entering protected areas. The email is captured once and is not verified or used to authenticate. No email OTP is sent.
 
-Visitors can browse `/counselors` and select available times on published profiles. Signed-in customers can create temporary holds and see them at `/bookings`; a hold is not a confirmed appointment and payment is not yet available. Counselors manage their own weekly hours and date exceptions at `/counselor/availability`; admins manage schedules and hold settings from the admin area. Times use Asia/Kolkata. Admins manage profiles at `/admin/counselors`, using counselor-role account IDs and approved HTTPS image links. Unpublished profiles and linked account IDs are not public. External image hosts receive visitors' image requests.
+Visitors can browse `/counselors` and select available times on published profiles. Signed-in customers can create temporary holds and see them at `/bookings`; a hold becomes confirmed only after verified captured payment. Configure the local simulator or Razorpay Test Mode using [the payment testing guide](docs/payments-local-testing.md). Counselors manage their own weekly hours and date exceptions at `/counselor/availability`; admins manage schedules and hold settings from the admin area. Times use Asia/Kolkata. Admins manage profiles at `/admin/counselors`, using counselor-role account IDs and approved HTTPS image links. Unpublished profiles and linked account IDs are not public. External image hosts receive visitors' image requests.
 
 ## Checks
 
@@ -77,7 +77,7 @@ Playwright starts the app automatically. Its OTP journey requires local Supabase
 
 ## Architecture
 
-The app is one Next.js App Router application with domain modules added incrementally under `src/modules/`. Phase 1 implements phone OTP, one-time contact-email capture, customer-default profiles, a single canonical role, server-side role guards, and database RLS. Phase 2 adds an audited admin catalog and a limited public counselor view. Phase 3 adds audited schedules and server-generated slots. Phase 4 adds customer-owned pending holds, database-enforced overlap protections, and one-time rescheduling for confirmed fixtures. The Supabase browser/server clients are separate; the Next.js 16 Proxy refreshes claims, while server data access and RLS independently authorize requests. No service-role client, production credentials, live SMS, or production connection is configured in the app.
+The app is one Next.js App Router application with domain modules added incrementally under `src/modules/`. Phase 1 implements phone OTP, one-time contact-email capture, customer-default profiles, a single canonical role, server-side role guards, and database RLS. Phase 2 adds an audited admin catalog and a limited public counselor view. Phase 3 adds audited schedules and server-generated slots. Phase 4 adds customer-owned pending holds, database-enforced overlap protections, and one-time rescheduling. Phase 5 adds immutable price snapshots, audited payment records, verified confirmation, late-payment checks, and reconciliation. The Supabase browser/server clients are separate; the Next.js 16 Proxy refreshes claims, while server data access and RLS independently authorize requests. Phase 5 adds a server-only service client for payment ingestion and reconciliation; its credentials never reach the browser. No production credentials, live SMS, or production connection is configured.
 
 Database changes belong in versioned SQL migrations under `supabase/migrations/`. Phase 1 adds profiles, role-audit events, and the one-time contact-email operation. See [ARCHITECTURE.md](ARCHITECTURE.md), [DATABASE.md](DATABASE.md), [DEVELOPMENT.md](DEVELOPMENT.md), [DECISIONS.md](DECISIONS.md), and [PROGRESS.md](PROGRESS.md) for the persistent project record; [ADR 0001](docs/architecture/ADR-0001-modular-monolith.md) and [audit conventions](docs/architecture/audit-conventions.md) capture supporting details. [PROJECT_REQUIREMENTS.txt](PROJECT_REQUIREMENTS.txt) remains the full product specification.
 
@@ -210,3 +210,16 @@ Database changes belong in versioned SQL migrations under `supabase/migrations/`
 ```
 
 `src/modules/<domain>/` is created only when that module is approved. Generated files such as `next-env.d.ts` and `*.tsbuildinfo`, plus local artifacts such as `node_modules/`, `.next/`, test reports, and `.env.local`, are ignored by Git.
+
+## Phase 5 payments
+
+Start with [Local payment setup and testing](docs/payments-local-testing.md). The default mode is `disabled`; `simulator` runs only with local Supabase under a development/test runtime, and `razorpay` accepts Test Mode keys only. The current local workspace is configured for the simulator. Admins manage price and exceptions at `/admin/payments`; customers pay or recheck payment from `/bookings`. Failed attempts do not extend the original hold. Late captured payment confirms only a free, valid future slot, otherwise it becomes an admin exception. No automatic refunds or production collection are implemented.
+
+```sh
+pnpm test:integration
+pnpm test:migrations
+pnpm test:e2e --grep-invert 'local customer can sign in and is denied the admin area'
+pnpm payments:local reconcile
+```
+
+The database test runner uses Docker directly; set `LOCAL_SUPABASE_RANCHER=1` in ignored local configuration for Rancher Desktop. The migration check creates and removes only a randomly named disposable database in the local container. Browser tests use temporary synthetic accounts. The existing customer OTP test changes the persistent customer profile, so exclude it when preserving demo data.

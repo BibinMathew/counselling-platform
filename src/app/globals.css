@@ -310,3 +310,35 @@ a {
   font-size: 1.1rem;
   font-weight: 600;
 }
+
+.payment-controls {
+  display: grid;
+  gap: 0.65rem;
+  margin-block: 0.8rem;
+}
+.payment-controls button,
+.payment-simulator button {
+  padding: 0.6rem 0.8rem;
+  border: 1px solid #17665a;
+  border-radius: 4px;
+  background: #17665a;
+  color: white;
+  cursor: pointer;
+}
+.payment-controls button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+.payment-controls button:focus-visible {
+  outline: 3px solid #be722e;
+  outline-offset: 2px;
+}
+.payment-simulator {
+  display: grid;
+  gap: 0.65rem;
+  border: 1px dashed #17665a;
+  padding: 1rem;
+}
+.payment-reference {
+  overflow-wrap: anywhere;
+}

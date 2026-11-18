@@ -1,4 +1,4 @@
-import { execFileSync } from "node:child_process";
+import { localDb, localSettings } from "../helpers/local-supabase";
 import { randomInt, randomUUID } from "node:crypto";
 import { createServerClient } from "@supabase/ssr";
 import { createClient } from "@supabase/supabase-js";
@@ -14,12 +14,7 @@ test("admin manages a counselor profile visible to visitors", async ({
     !process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
     "Requires local Supabase",
   );
-  const status = JSON.parse(
-    execFileSync("supabase", ["status", "--output", "json"], {
-      encoding: "utf8",
-      stdio: ["ignore", "pipe", "ignore"],
-    }),
-  ) as Record<string, string>;
+  const status = localSettings();
   const localUrl = new URL(status.API_URL);
   if (
     !["127.0.0.1", "localhost"].includes(localUrl.hostname) ||
@@ -56,14 +51,8 @@ test("admin manages a counselor profile visible to visitors", async ({
     accounts.push(counselorId);
     if (![adminId, counselorId].every((id) => /^[0-9a-f-]{36}$/.test(id)))
       throw new Error("Invalid synthetic account ID.");
-    execFileSync(
-      "supabase",
-      [
-        "db",
-        "query",
-        `do $$ begin update public.profiles set role = 'admin', email = 'admin@example.test' where id = '${adminId}'; update public.profiles set role = 'counselor', email = 'counselor@example.test' where id = '${counselorId}'; end $$;`,
-      ],
-      { stdio: "ignore" },
+    localDb(
+      `do $$ begin update public.profiles set role = 'admin', email = 'admin@example.test' where id = '${adminId}'; update public.profiles set role = 'counselor', email = 'counselor@example.test' where id = '${counselorId}'; end $$;`,
     );
 
     const cookieValues = new Map<string, string>();
@@ -297,14 +286,8 @@ test("admin manages a counselor profile visible to visitors", async ({
   } finally {
     try {
       if (adminId && counselorId)
-        execFileSync(
-          "supabase",
-          [
-            "db",
-            "query",
-            `do $$ begin perform set_config('request.jwt.claim.sub', '${adminId}', true); delete from public.availability_rules where counselor_id in (select id from public.counselors where profile_id = '${counselorId}'); delete from public.availability_exceptions where counselor_id in (select id from public.counselors where profile_id = '${counselorId}'); delete from public.availability_audit_events where actor_user_id in ('${adminId}', '${counselorId}'); delete from public.counselors where profile_id = '${counselorId}'; delete from public.counselor_catalog_audit_events where actor_user_id = '${adminId}'; end $$;`,
-          ],
-          { stdio: "ignore" },
+        localDb(
+          `do $$ begin perform set_config('request.jwt.claim.sub', '${adminId}', true); delete from public.availability_rules where counselor_id in (select id from public.counselors where profile_id = '${counselorId}'); delete from public.availability_exceptions where counselor_id in (select id from public.counselors where profile_id = '${counselorId}'); delete from public.availability_audit_events where actor_user_id in ('${adminId}', '${counselorId}'); delete from public.counselors where profile_id = '${counselorId}'; delete from public.counselor_catalog_audit_events where actor_user_id = '${adminId}'; end $$;`,
         );
     } finally {
       for (const id of accounts) {

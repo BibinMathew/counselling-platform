@@ -9,6 +9,8 @@ import {
   getPublicSessionSettings,
 } from "@/modules/availability/server/availability";
 import { getPublicCounselor } from "@/modules/catalog/server/catalog";
+import { getPaymentPrice } from "@/modules/payments/server";
+import { formatPrice } from "@/modules/payments/model";
 
 export default function CounselorPage({
   params,
@@ -43,9 +45,10 @@ async function CounselorContent({
   if (!z.string().uuid().safeParse(id).success) notFound();
   const counselor = await getPublicCounselor(id);
   if (!counselor) notFound();
-  const [slots, settings] = await Promise.all([
+  const [slots, settings, price] = await Promise.all([
     getPublicAvailability(id),
     getPublicSessionSettings(),
+    getPaymentPrice(),
   ]);
   const dateFormatter = new Intl.DateTimeFormat("en-IN", {
     timeZone: "Asia/Kolkata",
@@ -75,7 +78,9 @@ async function CounselorContent({
         <h1>{counselor.display_name}</h1>
         <p>{counselor.qualifications}</p>
         <p>{counselor.experience}</p>
-        <p>{settings.session_minutes}-minute session · ₹699</p>
+        <p>
+          {settings.session_minutes}-minute session · {formatPrice(price.amount_paise)}
+        </p>
       </div>
       <div className="counselor-about">
         <h2>About</h2>

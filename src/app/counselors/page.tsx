@@ -4,6 +4,8 @@ import { connection } from "next/server";
 import { Suspense } from "react";
 import { getPublicSessionSettings } from "@/modules/availability/server/availability";
 import { getPublicCounselors } from "@/modules/catalog/server/catalog";
+import { getPaymentPrice } from "@/modules/payments/server";
+import { formatPrice } from "@/modules/payments/model";
 
 export default function CounselorsPage() {
   return (
@@ -19,13 +21,16 @@ export default function CounselorsPage() {
 
 async function Directory() {
   await connection();
-  const [counselors, settings] = await Promise.all([
+  const [counselors, settings, price] = await Promise.all([
     getPublicCounselors(),
     getPublicSessionSettings(),
+    getPaymentPrice(),
   ]);
   return (
     <>
-      <p>One-to-one sessions · {settings.session_minutes} minutes · ₹699</p>
+      <p>
+        One-to-one sessions · {settings.session_minutes} minutes · {formatPrice(price.amount_paise)}
+      </p>
       {!counselors.length && <p>No counselor profiles are available yet.</p>}
       <div className="counselor-list">
         {counselors.map((counselor) => (

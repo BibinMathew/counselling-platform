@@ -29,7 +29,7 @@ pnpm install --frozen-lockfile
 pnpm dev
 ```
 
-The homepage works without `.env.local`. The counselor catalog and identity routes require the local Supabase stack and the local URL/publishable key; no service-role key is used by the app.
+The homepage works without `.env.local`. The counselor catalog and identity routes require the local Supabase stack and the local URL/publishable key; payment processing additionally requires a server-only local service-role key.
 
 ## Local Auth and Database
 
@@ -66,7 +66,7 @@ For local catalog management, sign in as an admin, grant the counselor role to a
 
 Counselors manage their own calendar at `/counselor/availability`. Admins open a counselor's availability from `/admin/counselors` and change global session, buffer, notice, advance, and hold-duration settings at `/admin/availability`. Weekly hours and date exceptions use Asia/Kolkata; blocks override openings, including the buffer. Slots are shown on published counselor profile pages. Active holds and confirmed appointments prevent conflicting availability changes. A catalog entry cannot be deleted while referenced by schedules or bookings.
 
-Select a published slot, sign in as a customer and complete contact email if needed, then select **Hold this time**. The private `/bookings` page displays the hold and expiry; payment is not available, and a hold is not a confirmed appointment. Synthetic database fixtures exercise confirmed rescheduling only in tests; no public operation fakes payment or confirmation. Expired holds become publicly available immediately and are transitioned to expired on a later successful booking operation.
+Select a published slot, sign in as a customer and complete contact email if needed, then select **Hold this time**. The private `/bookings` page displays the hold and expiry; a hold is not a confirmed appointment until a captured payment is verified. The explicitly local payment simulator can exercise confirmation without collecting money; it is unavailable in production. Expired holds become publicly available immediately and are transitioned to expired on a later successful booking operation.
 
 Apply newly added migrations to an existing local database with `supabase migration up`; unlike `supabase db reset`, this does not intentionally delete existing local data. The catalog and booking Playwright tests create and remove synthetic local accounts and obtain their local-only service key from `supabase status`; they refuse a non-local API URL. The application itself does not use this key. The older OTP customer browser test updates the existing fixed test customer's preferred name, so preserve that data before running the full browser suite locally.
 
@@ -93,3 +93,9 @@ Playwright starts the development server automatically. Install Chromium once pe
 4. Run relevant lint, typecheck, tests, and build checks; add or update tests to cover the module's acceptance criteria.
 5. Update `ARCHITECTURE.md`, `DATABASE.md`, `DEVELOPMENT.md`, `DECISIONS.md`, `PROGRESS.md`, and `README.md` where relevant. Record actual test commands and results.
 6. Summarize changed files, security considerations, failures or limitations, and unresolved decisions. Stop for human review; do not start the next module or commit unless requested.
+
+## Phase 5 development
+
+Follow [the payment setup/testing guide](docs/payments-local-testing.md) for simulator configuration, failure/replay/late-payment scenarios, reconciliation commands, and Razorpay Test Mode setup. Scripts load ignored `.env.local` where appropriate. `pnpm test:integration` now runs TAP SQL directly in the local container and checks assertion output; it does not need a separate pg_prove image. Set `LOCAL_SUPABASE_RANCHER=1` for `rdctl shell` transport. `pnpm test:migrations` replays all migrations in a disposable local database using schema-only Auth/extensions baseline.
+
+Use an isolated browser port, for example `PLAYWRIGHT_PORT=3110 pnpm test:e2e --grep-invert 'local customer can sign in and is denied the admin area' --workers=1`. Payment browser fixtures create and clean up their own accounts. Keep the simulator disabled when serving a production build (`PAYMENT_MODE=disabled pnpm build`); real Test Mode configuration requires the server-side Razorpay keys and a separate webhook secret. Never copy the service-role key to public environment variables.

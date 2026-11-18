@@ -28,6 +28,9 @@ async function AdminContent() {
         <a href="/admin/availability">Scheduling settings</a>
       </p>
       <h2>Assign account role</h2>
+      <p>
+        <a href="/admin/payments">Payments and pricing</a>
+      </p>
       <RoleAssignmentForm />
       <a href="/profile">Profile</a>
     </>

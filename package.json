@@ -9,10 +9,12 @@
     "lint": "eslint",
     "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest run",
-    "test:integration": "supabase test db",
-    "test:e2e": "playwright test",
+    "test:integration": "node --env-file-if-exists=.env.local scripts/test-database.mjs",
+    "test:e2e": "node --env-file-if-exists=.env.local node_modules/@playwright/test/cli.js test",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "test:migrations": "node --env-file-if-exists=.env.local scripts/verify-migrations.mjs",
+    "payments:local": "node --env-file=.env.local scripts/payment-tools.mjs"
   },
   "engines": {
     "node": "26.13.1"
