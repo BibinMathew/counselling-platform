@@ -48,7 +48,9 @@ jobs:
           }
           JS
       - run: pnpm exec playwright install --with-deps chromium
-      - run: pnpm test:e2e
+      # Browser fixtures share scheduling settings and global worker locks.
+      # Race/concurrency scenarios remain explicit inside individual tests.
+      - run: pnpm test:e2e --workers=1
       - run: pnpm build
         env:
           PAYMENT_MODE: disabled
