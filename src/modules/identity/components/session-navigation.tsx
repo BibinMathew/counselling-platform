@@ -12,7 +12,7 @@ export async function SessionNavigation() {
     <AppNavigation
       role={profile?.role ?? null}
       complete={Boolean(profile?.email)}
-      phase9Enabled={profile?.role === "admin" && readFeedbackAdminMode(process.env) === "local"}
+      phase9Enabled={profile?.role === "admin" && readFeedbackAdminMode(process.env) !== "disabled"}
     />
   );
 }
@@ -20,7 +20,7 @@ export function NavigationFallback() {
   return (
     <header className="site-header">
       <Link href="/" className="site-brand">
-        Counseling Platform
+        littlehello
       </Link>
       <span className="muted">Loading account…</span>
     </header>

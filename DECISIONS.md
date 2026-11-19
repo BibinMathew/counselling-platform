@@ -124,3 +124,11 @@ Captured payments already marked for admin review retain that outcome on every r
 - Keep page mains unique and focusable, measure header height for skip offsets, preserve focused links across responsive changes and respect reduced motion. Body/status/control contrast pairs are checked against actual token backgrounds.
 - Global sign-out uses a cancelable content-free leave event so private note/feedback/case guards can retain drafts. Same-page fragments do not require discard. No form is remounted by opening/closing navigation; pending/version/request safeguards remain unchanged.
 - Cross-browser/device/assistive-technology certification and production launch remain Phase10 work. This polish uses agent browser/keyboard/mobile/zoom acceptance and existing full workflow regressions.
+
+## Brand and domain — 19 November 2026
+
+User selected lowercase **littlehello** as the public brand and **littlehello.in** as the intended domain. Header/fallback, footer, page titles and payment checkout display name use the brand. Domain/DNS connection remains deployment work; internal identifiers and database names are unchanged.
+
+## Phase 10A approved local staging implementation — 19 November 2026
+
+User confirmed the dedicated Supabase project is empty and approved online simulated payments, fixed test OTPs initially, fictional workspaces and manual notification batches. They approved local implementation; no remote writes, source publication, deployment, paid plan or production launch are authorized. Use a generated protected Vercel Preview URL; littlehello.in is not purchased. Exact hosted project/origin and explicit environment gates preserve production restrictions; new account enrollment is disabled through both app policy and required hosted Auth settings. Three accounts are provisioned idempotently, then supported audited role/catalog/scheduling/payment flows populate the demo. Hosted eligibility/access settings remain rollout conditions; no claim Hobby is appropriate for commercial staging. See approved Phase10A design and handoff guide.

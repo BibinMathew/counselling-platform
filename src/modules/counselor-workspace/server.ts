@@ -5,7 +5,8 @@ import { requireProfileRole } from "@/modules/identity/server/access";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { sessionSchema, workspaceSchema, workspaceQuery, type WorkspaceQuery } from "./model";
 export function requireLocalWorkspace() {
-  if (readWorkspaceMode(process.env) !== "local") throw new Error("Local workspace is disabled.");
+  if (readWorkspaceMode(process.env) === "disabled")
+    throw new Error("Synthetic workspace is disabled.");
 }
 export async function getWorkspace(input: WorkspaceQuery) {
   requireLocalWorkspace();

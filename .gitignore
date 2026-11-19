@@ -50,3 +50,4 @@ next-env.d.ts
 # Local test artifacts
 /.test-artifacts/
 /.superpowers/
+!.env.staging.example

@@ -1,3 +1,4 @@
+import { readDeployment } from "@/lib/deployment";
 import "server-only";
 
 import { createServerClient } from "@supabase/ssr";
@@ -6,6 +7,7 @@ import type { Database } from "@/types/database.types";
 import { getSupabasePublicEnv } from "@/lib/env";
 
 export async function createSupabaseServerClient() {
+  readDeployment(process.env);
   const { NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY } = getSupabasePublicEnv();
   const cookieStore = await cookies();
 

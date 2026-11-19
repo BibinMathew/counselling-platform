@@ -121,3 +121,7 @@ Admin/own-feedback reads are audited without content. Audit holds opaque IDs, fi
 ## Phase 9.5 UI-only changes
 
 No schema, RPC, grants, RLS or database policy changed for the visual polish. The same25 migrations and all existing authorization/concurrency assertions remain the validation baseline. Preservation checks compare exact original identities/bookings/settings and database-side fingerprints of private notes/feedback/cases without printing their content.
+
+## Phase 10A staging origin (local migration)
+
+Migration `20261127000000_staging_notification_origin.sql` adds empty-by-default `synthetic_staging_settings` with a single canonical HTTPS Vercel origin, RLS enabled and select/insert/update granted only to service_role. `is_simulated_notification_origin` permits existing HTTP loopback origins or that exact configured origin; only service_role may execute it. The existing service-only notification dispatcher uses the helper; all lease/idempotency/recipient checks are preserved. No staging row was retained locally and no hosted migration/data change has occurred. Total migration chain:26. Nine rollback-only staging assertions cover default denial, exact origin, malformed origin and grants.

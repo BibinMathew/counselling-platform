@@ -44,7 +44,7 @@ The sequence below follows the requirements and is not a claim that the modules 
 8. Counselor workspace and private notes (implemented locally; messaging/reporting deferred)
 9. Feedback and administration (local private feedback, dashboard and case tracking)
 
-Phase 9.5 is UI/UX polish (implemented locally). Phase 10 is hardening and launch (not started).
+Phase 9.5 is UI/UX polish (implemented locally). Phase 10A staging support is implemented locally; hosted rollout and production hardening/launch remain pending.
 
 If multiple simultaneous roles are needed later, replace the single enum column with a `profile_roles(profile_id, role)` membership table, backfill each current role, update server guards and RLS helpers to check membership, and migrate role RPCs/tests before removing `profiles.role`. This is a future migration, not current behavior.
 
@@ -112,3 +112,11 @@ The root layout streams `SessionNavigation` through Suspense independently of pa
 `globals.css` now organizes semantic tokens, native controls, cards, public/identity/workspace and responsive styles in one system. `components/ui` supplies presentation only; home facts reuse separately fallible existing settings and portrait fallback handles failed public catalog images. No database/dependency/provider/asset-host change.
 
 Mobile nonmodal navigation transfers focus before hiding links and supports Escape; measured header height supplies skip/sidebar offsets. Content-free cancelable leave events extend existing memory-only draft guards to global sign-out. Same-page fragments are distinguished from leaving a route. No private content enters global chrome/storage/telemetry. [Manual checks and limits](docs/ui-polish-local-testing.md).
+
+## Phase 10A staging boundary
+
+`src/lib/deployment.ts` validates explicit APP_ENV=staging, Vercel Preview identity, the exact approved Supabase project, exact HTTPS preview origin and user/phone allowlists. Feature readers reuse that boundary with explicit staging private modes; local behavior is retained and production simulation stays refused. Server clients validate the target before credentials are used. Proxy and payment/notification API routes reject other staging request origins. Profile access rejects uninvited sessions; OTP requests cannot create staging accounts. Hosted Auth signup restrictions and platform preview protection must additionally be configured and directly tested; application policy alone does not secure Supabase APIs.
+
+StagingNotice renders at request time without serializing configuration. Service-only synthetic_staging_settings stores one exact preview origin for notification receipts; it is empty by default. Domain booking/payment/notes/case rules and RLS are unchanged. `scripts/staging-tools.mjs` provides read-only schema inventory, explicitly confirmed account provisioning/first-admin/origin setup and bounded manual batches. No hosted scheduler or deployment has run.
+
+Phase10A acceptance additionally found the legacy root proxy was not discovered by installed Next with src/app. It now lives at src/proxy.ts; deployment denial runs before session refresh, while public pages still work without backend configuration. Server readers and RLS remain the final authorization boundaries.

@@ -1,6 +1,14 @@
+import { isDeploymentRequestAllowed } from "@/lib/deployment";
 import { processPaymentWebhook } from "@/modules/payments/server";
 import { readLimitedBody } from "@/modules/payments/http";
 export async function POST(request: Request) {
+  try {
+    if (!isDeploymentRequestAllowed(process.env, request.url))
+      return Response.json({ error: "Invalid deployment origin" }, { status: 403 });
+  } catch {
+    return Response.json({ error: "Deployment unavailable" }, { status: 503 });
+  }
+
   let body: string;
   try {
     body = await readLimitedBody(request);

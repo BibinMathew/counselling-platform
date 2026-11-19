@@ -1,4 +1,4 @@
-# Counseling Platform
+# littlehello
 
 A responsive counseling booking platform built as a modular Next.js monolith. Phases 0–9 implement foundation, identity, counselor catalog, availability, booking holds, payment-backed confirmation, manual Meet links, simulated notifications, the customer portal, and the counselor workspace with encrypted private notes, private feedback and operational admin tools locally. Contact email is captured once after phone OTP, without email verification or email OTP. Phase 5 includes a local payment simulator and Razorpay Test Mode adapter; real Razorpay testing awaits keys. Messaging, message reporting and booking/financial remedies remain deferred. Phase 8 accepts fictional content only and stays disabled in production.
 
@@ -245,3 +245,9 @@ After a confirmed appointment ends, its customer may submit one private 1–5 ra
 ## Phase 9.5 interface polish
 
 The app uses the approved crisp white/blue visual system across public discovery, identity and all role workspaces. A verified-role header, light desktop sidebar and accessible mobile Menu provide navigation; one global sign-in/sign-out control preserves booking return paths and dirty-draft confirmation. Public pages, appointment/date/status cards, calendars, operational metrics and forms share readable responsive styles. Existing rules/data/local-only gates remain unchanged. See [UI/manual acceptance](docs/ui-polish-local-testing.md). Phase10 hardening remains next; no launch is implied.
+
+Brand: **littlehello**. Intended public domain: **littlehello.in**. Domain connection and hosted configuration are pending Phase 10A.
+
+## Phase 10A: staging preparation
+
+Explicit hosted synthetic staging support is prepared locally for the dedicated project and Vercel Preview environment; no site has been deployed. Fixed-OTP precreated accounts, fake payments, fictional notes/feedback/admin and manual synthetic notification batches require strict staging configuration. Production synthetic features remain disabled by default. No real SMS, payment collection, automatic messaging or domain connection. Follow [staging deployment handoff](docs/staging-deployment.md); hosting eligibility, access protection, credentials, remote migrations and hosted acceptance/recovery remain pending.

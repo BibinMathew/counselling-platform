@@ -30,7 +30,7 @@ export default function Page(props: Props) {
 async function Content({ params, searchParams }: Props) {
   await connection();
   await requireProfileRole("admin");
-  if (readFeedbackAdminMode(process.env) !== "local") return <Disabled />;
+  if (readFeedbackAdminMode(process.env) === "disabled") return <Disabled />;
   const id = z
     .string()
     .uuid()

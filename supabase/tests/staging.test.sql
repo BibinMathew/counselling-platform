@@ -1,0 +1,16 @@
+begin;
+create extension if not exists pgtap with schema extensions;
+set search_path = public, extensions;
+select plan(9);
+select has_table('public','synthetic_staging_settings','Explicit service-owned staging origin configuration exists');
+select ok(not has_table_privilege('authenticated','public.synthetic_staging_settings','INSERT'),'Authenticated cannot enable staging origins');
+select ok(not has_table_privilege('anon','public.synthetic_staging_settings','SELECT'),'Anonymous cannot read staging configuration');
+select is(public.is_simulated_notification_origin('https://littlehello-preview.vercel.app'),false,'Unconfigured hosted origin is denied');
+insert into public.synthetic_staging_settings(id,app_origin) values(true,'https://littlehello-preview.vercel.app');
+select is(public.is_simulated_notification_origin('https://littlehello-preview.vercel.app'),true,'Exact configured preview origin is accepted');
+select is(public.is_simulated_notification_origin('https://other.vercel.app'),false,'Another preview is denied');
+select is(public.is_simulated_notification_origin('https://littlehello-preview.vercel.app/path'),false,'Extra path is denied');
+select is(public.is_simulated_notification_origin('http://127.0.0.1:3000'),true,'Existing local origin remains accepted');
+select throws_ok($$insert into public.synthetic_staging_settings(id,app_origin) values(true,'https://evil.example') on conflict(id) do update set app_origin=excluded.app_origin$$,'23514',null,'Only canonical Vercel preview origins can be configured');
+select * from finish();
+rollback;

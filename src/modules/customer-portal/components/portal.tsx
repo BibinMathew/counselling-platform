@@ -17,7 +17,7 @@ const format = (value: string) =>
   }).format(new Date(value));
 export async function CustomerPortal({ query }: { query: PortalQueryInput }) {
   const result = await getCustomerPortal(query);
-  const feedbackEnabled = readFeedbackAdminMode(process.env) === "local";
+  const feedbackEnabled = readFeedbackAdminMode(process.env) !== "disabled";
   let feedbackUnavailable = false;
   let feedbackRows: { booking_id: string; submitted: boolean }[] = [];
   if (feedbackEnabled) {

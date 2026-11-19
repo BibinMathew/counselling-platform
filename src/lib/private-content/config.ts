@@ -1,25 +1,7 @@
 import "server-only";
-export function readWorkspaceMode(env: Record<string, string | undefined>): "disabled" | "local" {
-  const mode = env.COUNSELOR_WORKSPACE_MODE ?? "disabled";
-  if (mode === "disabled") return mode;
-  try {
-    const url = new URL(env.NEXT_PUBLIC_SUPABASE_URL ?? "");
-    if (
-      mode !== "local" ||
-      !["development", "test"].includes(env.NODE_ENV ?? "") ||
-      url.protocol !== "http:" ||
-      !["127.0.0.1", "localhost", "[::1]"].includes(url.hostname) ||
-      url.username ||
-      url.password ||
-      url.search ||
-      url.hash ||
-      url.pathname !== "/"
-    )
-      throw 0;
-    return "local";
-  } catch {
-    throw new Error("Workspace requires local development configuration.");
-  }
+import { readPrivateFeatureMode } from "@/lib/deployment";
+export function readWorkspaceMode(env: Record<string, string | undefined>) {
+  return readPrivateFeatureMode(env, "COUNSELOR_WORKSPACE_MODE");
 }
 export type ContentKeys = { activeId: string; keys: Record<string, Buffer> };
 export function readContentKeys(env: Record<string, string | undefined>): ContentKeys {

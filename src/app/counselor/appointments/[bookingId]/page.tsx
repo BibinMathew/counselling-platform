@@ -20,7 +20,7 @@ export default function SessionPage({ params }: { params: Promise<{ bookingId: s
 }
 async function Content({ params }: { params: Promise<{ bookingId: string }> }) {
   await connection();
-  if (readWorkspaceMode(process.env) !== "local")
+  if (readWorkspaceMode(process.env) === "disabled")
     return <p>Local session workspace is disabled.</p>;
   const value = await getSession((await params).bookingId);
   if (!value) notFound();

@@ -34,7 +34,11 @@ export async function HomeAccount() {
   const links = profile.email
     ? [...roleLinks[profile.role], { href: "/profile", label: "Your profile" }]
     : [{ href: "/complete-profile", label: "Complete profile" }];
-  if (profile.email && profile.role === "admin" && readFeedbackAdminMode(process.env) === "local")
+  if (
+    profile.email &&
+    profile.role === "admin" &&
+    readFeedbackAdminMode(process.env) !== "disabled"
+  )
     links.splice(
       links.length - 1,
       0,

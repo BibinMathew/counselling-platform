@@ -1,4 +1,5 @@
 import "server-only";
+import { isStagingUserAllowed } from "@/lib/deployment";
 
 import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -9,7 +10,7 @@ export async function getCurrentProfile() {
   const { data: claimsData, error: claimsError } = await supabase.auth.getClaims();
   const userId = claimsData?.claims?.sub;
 
-  if (claimsError || typeof userId !== "string") {
+  if (claimsError || typeof userId !== "string" || !isStagingUserAllowed(process.env, userId)) {
     return null;
   }
 

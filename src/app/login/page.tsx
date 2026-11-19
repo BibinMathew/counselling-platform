@@ -4,7 +4,7 @@ import { safeBookingReturn } from "@/modules/booking/return-path";
 import { LoginForm } from "@/modules/identity/components/login-form";
 
 export const metadata: Metadata = {
-  title: "Phone sign-in | Counseling Platform",
+  title: "Phone sign-in | littlehello",
 };
 
 export default function LoginPage({ searchParams }: { searchParams: Promise<{ next?: string }> }) {

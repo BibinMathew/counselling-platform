@@ -17,8 +17,8 @@ export async function OperationalOverview() {
     <section>
       <h2>Operational overview</h2>
       <p>
-        Local test features · As of {formatTime(d.as_of)} · Asia/Kolkata. Counts cover all eligible
-        records and do not certify attendance.
+        Synthetic test features · As of {formatTime(d.as_of)} · Asia/Kolkata. Counts cover all
+        eligible records and do not certify attendance.
       </p>
       <div className="metric-grid">
         {counts.map(([label, count, href]) => (

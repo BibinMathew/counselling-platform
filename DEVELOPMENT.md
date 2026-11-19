@@ -119,3 +119,9 @@ See [local feedback/admin testing](docs/feedback-admin-local-testing.md) for man
 ## Phase 9.5 UI checks
 
 Follow [UI/manual acceptance](docs/ui-polish-local-testing.md). New pure navigation tests and generated-role browser fixtures cover the shared shell, role/gate/active matching, validated booking auth returns, Menu/keyboard/resize focus, skip/main landmarks and narrow layouts. Existing note/case flows cover canceled global sign-out/sidebar navigation and same-page skip behavior with dirty drafts. No UI library or font service was added. Use existing local feature flags; the public core also renders with public Supabase configuration absent.
+
+## Phase 10A local staging preparation
+
+Use [staging deployment handoff](docs/staging-deployment.md) and `.env.staging.example`; keep filled `.env.staging` ignored. Staging deployment validation can be exercised with pure unit tests and an inert Vercel-preview configuration in a production build, without writing to the hosted project. The staging browser smoke intentionally verifies local/wrong-origin denial, not hosted access certification. Existing full browser regression still uses loopback Supabase; never point destructive local fixture helpers at the hosted project. Run SQL suites separately from browser fixtures, preserve existing data and pause/restore the owned poller for worker race tests.
+
+Manual notification/reconciliation batches replace autonomous scheduling for initial staging acceptance. Hosted Auth restrictions, preview link sharing, cloud credentials, migrations/seeding and backup restore remain operator acceptance gates. Test OTPs are synthetic credentials, not verified ownership. Do not use real counseling content or promote synthetic feature configuration into production.

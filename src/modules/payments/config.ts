@@ -1,3 +1,4 @@
+import { requireSyntheticRuntime, readDeployment } from "@/lib/deployment";
 export type PaymentMode = "disabled" | "simulator" | "razorpay";
 export type PaymentConfig = {
   mode: PaymentMode;
@@ -12,16 +13,14 @@ export function readPaymentConfig(env: Record<string, string | undefined>): Paym
     throw new Error("Invalid payment mode");
   if (mode === "disabled") return { mode, keyId: "", keySecret: "", webhookSecret: "" };
   if (mode === "simulator") {
-    const url = new URL(env.NEXT_PUBLIC_SUPABASE_URL ?? "");
-    if (env.NODE_ENV !== "development" && env.NODE_ENV !== "test")
-      throw new Error("Simulator requires a local development runtime");
-    if (url.protocol !== "http:" || !["127.0.0.1", "localhost", "[::1]"].includes(url.hostname))
-      throw new Error("Simulator requires local Supabase");
+    requireSyntheticRuntime(env);
     const secret = env.PAYMENT_SIMULATOR_SECRET ?? "";
     if (secret.length < 32)
       throw new Error("Configure a simulator secret with at least 32 characters");
     return { mode, keyId: "simulator", keySecret: secret, webhookSecret: secret };
   }
+  if (readDeployment(env).kind === "staging")
+    throw new Error("Staging accepts simulated payments only.");
   if (
     !/^rzp_test_[A-Za-z0-9]+$/.test(env.RAZORPAY_KEY_ID ?? "") ||
     !env.RAZORPAY_KEY_SECRET ||

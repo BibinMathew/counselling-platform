@@ -1,5 +1,7 @@
 "use server";
 
+import { phoneOtpOptions, isStagingUserAllowed, readDeployment } from "@/lib/deployment";
+
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
@@ -54,11 +56,13 @@ export async function requestPhoneOtp(
     return { status: "error", message: "Enter a valid Indian mobile number and preferred name." };
   }
 
+  const options = phoneOtpOptions(process.env, phone);
+  if (!options) return { status: "error", message: "This staging account is not available." };
   const metadata = nameResult.data ? { preferred_name: nameResult.data } : undefined;
   const supabase = await createSupabaseServerClient();
   const { error } = await supabase.auth.signInWithOtp({
     phone,
-    options: { data: metadata },
+    options: { ...options, data: metadata },
   });
 
   if (error) {
@@ -89,6 +93,8 @@ export async function verifyPhoneOtp(
     return { status: "error", message: "The code could not be verified. Check it and try again." };
   }
 
+  if (!phoneOtpOptions(process.env, phone))
+    return { status: "error", message: "This staging account is not available." };
   const supabase = await createSupabaseServerClient();
   const { error } = await supabase.auth.verifyOtp({ phone, token: otp.data, type: "sms" });
 
@@ -96,6 +102,14 @@ export async function verifyPhoneOtp(
     return { status: "error", message: "The code could not be verified. Check it and try again." };
   }
 
+  if (readDeployment(process.env).kind === "staging") {
+    const { data: verifiedClaims } = await supabase.auth.getClaims();
+    const verifiedId = verifiedClaims?.claims?.sub;
+    if (typeof verifiedId !== "string" || !isStagingUserAllowed(process.env, verifiedId)) {
+      await supabase.auth.signOut();
+      return { status: "error", message: "This account does not have staging access." };
+    }
+  }
   if (nameResult.data) {
     const { data: userData, error: userError } = await supabase.auth.getUser();
 

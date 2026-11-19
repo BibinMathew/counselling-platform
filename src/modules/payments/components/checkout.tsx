@@ -103,7 +103,7 @@ export function BookingPayment({
         order_id: details.externalOrderId,
         amount: details.amount,
         currency: details.currency,
-        name: "Counseling Platform",
+        name: "littlehello",
         handler: (result) =>
           void perform(async () => {
             const verified = await request<{ outcome: string }>("verify", {
@@ -165,7 +165,7 @@ export function BookingPayment({
       )}
       {checkout?.provider === "simulator" && (
         <section className="payment-simulator" aria-label="Payment simulator">
-          <h3>Local payment simulator</h3>
+          <h3>Payment simulator</h3>
           <p>No money is collected. Total: {formatPrice(checkout.amount)}</p>
           {(
             [

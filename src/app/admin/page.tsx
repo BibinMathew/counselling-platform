@@ -34,7 +34,7 @@ async function AdminContent() {
         <Link href="/admin/notifications">Notifications</Link>
         <Link href="/admin/payments">Payments and pricing</Link>
       </div>
-      {readFeedbackAdminMode(process.env) === "local" && (
+      {readFeedbackAdminMode(process.env) !== "disabled" && (
         <>
           <p>
             <Link href="/admin/bookings">Booking oversight</Link>

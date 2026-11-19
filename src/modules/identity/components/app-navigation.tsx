@@ -83,7 +83,7 @@ export function AppNavigation({
               <circle cx="21" cy="19" r="3" fill="currentColor" />
             </svg>
           </span>
-          <span>Counseling Platform</span>
+          <span>littlehello</span>
         </Link>
         <nav aria-label="Primary navigation" className="header-links">
           <Link href="/counselors">Counselors</Link>

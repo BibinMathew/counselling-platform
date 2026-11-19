@@ -1,3 +1,4 @@
+import { isDeploymentRequestAllowed } from "@/lib/deployment";
 import { z } from "zod";
 import { getCurrentProfile } from "@/modules/identity/server/access";
 import {
@@ -9,6 +10,13 @@ import {
 } from "@/modules/payments/server";
 import { hasSameOrigin, readLimitedBody } from "@/modules/payments/http";
 export async function POST(request: Request, context: { params: Promise<{ operation: string }> }) {
+  try {
+    if (!isDeploymentRequestAllowed(process.env, request.url))
+      return Response.json({ error: "Invalid deployment origin" }, { status: 403 });
+  } catch {
+    return Response.json({ error: "Deployment unavailable" }, { status: 503 });
+  }
+
   if (!hasSameOrigin(request))
     return Response.json({ error: "Invalid request origin" }, { status: 403 });
   const profile = await getCurrentProfile();

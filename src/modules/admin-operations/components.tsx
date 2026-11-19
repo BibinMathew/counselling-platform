@@ -19,7 +19,7 @@ export const statusLabel = (value: string) =>
 export function LocalNotice() {
   return (
     <Notice>
-      Local test features. Use fictional content only. Times are shown in Asia/Kolkata.
+      Synthetic test features. Use fictional content only. Times are shown in Asia/Kolkata.
     </Notice>
   );
 }

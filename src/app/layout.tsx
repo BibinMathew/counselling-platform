@@ -1,3 +1,4 @@
+import { StagingNotice } from "@/components/staging-notice";
 import { Suspense } from "react";
 import Link from "next/link";
 import {
@@ -9,7 +10,7 @@ import type { ReactNode } from "react";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Counseling Platform",
+  title: "littlehello",
   description: "A counseling appointment platform.",
 };
 
@@ -17,6 +18,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <body>
+        <Suspense fallback={null}>
+          <StagingNotice />
+        </Suspense>
         <a className="skip-link" href="#main-content">
           Skip to main content
         </a>
@@ -27,7 +31,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           {children}
         </main>
         <footer className="site-footer">
-          <span>Counseling Platform</span>
+          <span>littlehello</span>
           <span>One-to-one sessions online · Asia/Kolkata</span>
           <Link href="/counselors">Browse counselor directory</Link>
         </footer>

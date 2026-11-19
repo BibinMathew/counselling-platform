@@ -61,7 +61,9 @@ test("simulator checkout retries, verifies, reconciles and protects payment owne
     await page.getByRole("button", { name: "Hold this time" }).click();
     await expect(page).toHaveURL(/\/bookings$/);
     await page.getByRole("button", { name: /Pay ₹/ }).click();
-    await expect(page.getByText("Local payment simulator", { exact: true })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Payment simulator", exact: true }),
+    ).toBeVisible();
     await page.getByRole("button", { name: "Simulate failed attempt" }).click();
     await expect(page.getByRole("status")).toContainText("failed");
     await page.reload();
@@ -192,7 +194,9 @@ test("simulator checkout retries, verifies, reconciles and protects payment owne
       ).error,
     ).toBeNull();
     await page.getByRole("button", { name: /Pay ₹/ }).click();
-    await expect(page.getByText("Local payment simulator", { exact: true })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Payment simulator", exact: true }),
+    ).toBeVisible();
     const recovered = await service
       .from("payment_simulator_orders")
       .select("id")

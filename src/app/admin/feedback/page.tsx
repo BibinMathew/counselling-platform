@@ -26,7 +26,7 @@ export default function Page({ searchParams }: { searchParams: Promise<QueryInpu
 async function Content({ searchParams }: { searchParams: Promise<QueryInput> }) {
   await connection();
   await requireProfileRole("admin");
-  if (readFeedbackAdminMode(process.env) !== "local") return <Disabled />;
+  if (readFeedbackAdminMode(process.env) === "disabled") return <Disabled />;
   const input = await searchParams;
   const data = await getAdminFeedback(input);
   return (

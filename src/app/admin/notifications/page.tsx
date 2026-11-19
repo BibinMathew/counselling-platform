@@ -31,13 +31,14 @@ async function Content({
   if (mode === "disabled")
     return (
       <p>
-        Notification delivery is paused. Enable the local simulator to inspect synthetic delivery.
+        Notification delivery is paused. Enable the synthetic simulator to inspect synthetic
+        delivery.
       </p>
     );
   return (
     <>
       <p>
-        Local simulator. No email or WhatsApp message is sent. Showing jobs in pages of 100;
+        Synthetic simulator. No email or WhatsApp message is sent. Showing jobs in pages of 100;
         delivered means simulated delivery.
       </p>
       <nav aria-label="Notification queue">

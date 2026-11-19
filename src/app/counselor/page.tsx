@@ -25,7 +25,7 @@ export default function CounselorPlaceholderPage({
 async function CounselorContent({ searchParams }: { searchParams: Promise<WorkspaceQuery> }) {
   await connection();
   const profile = await requireProfileRole("counselor");
-  if (readWorkspaceMode(process.env) === "local") {
+  if (readWorkspaceMode(process.env) !== "disabled") {
     const workspace = await getWorkspace(await searchParams);
     return (
       <>

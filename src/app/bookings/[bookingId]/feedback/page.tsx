@@ -21,7 +21,7 @@ export default function FeedbackPage({ params }: { params: Promise<{ bookingId: 
 async function Content({ params }: { params: Promise<{ bookingId: string }> }) {
   await connection();
   await requireProfileRole("customer");
-  if (readFeedbackAdminMode(process.env) !== "local") return <Disabled />;
+  if (readFeedbackAdminMode(process.env) === "disabled") return <Disabled />;
   const id = z
     .string()
     .uuid()
