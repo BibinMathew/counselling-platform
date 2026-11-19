@@ -30,8 +30,8 @@ test("local customer can sign in and is denied the admin area", async ({ page })
   if (await emailField.isVisible()) {
     await page.getByLabel("Email address").fill("local.customer@example.test");
     await page.getByRole("button", { name: "Continue" }).click();
-    await expect(page.getByRole("status")).toContainText("Contact email saved.");
-    await page.getByRole("link", { name: "Continue to profile" }).click();
+    await expect(page).toHaveURL(/\/profile$/);
+    await expect(contactEmailText).toContainText(expectedEmail);
   } else {
     expectedEmail = (await contactEmailText.textContent())?.replace("Contact email: ", "") ?? "";
   }

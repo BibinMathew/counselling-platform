@@ -19,30 +19,25 @@ export function localSettings(): Record<string, string> {
 }
 export function localDb(sql: string): string {
   localSettings();
-  return process.env.LOCAL_SUPABASE_RANCHER === "1"
-    ? execFileSync(
-        "rdctl",
-        [
-          "shell",
-          "--",
-          "docker",
-          "exec",
-          "-i",
-          "supabase_db_counselling-platform",
-          "psql",
-          "-U",
-          "postgres",
-          "-d",
-          "postgres",
-          "-X",
-          "-v",
-          "ON_ERROR_STOP=1",
-          "-At",
-        ],
-        { input: sql, encoding: "utf8", stdio: ["pipe", "pipe", "pipe"] },
-      )
-    : execFileSync("supabase", ["db", "query", sql], {
-        encoding: "utf8",
-        stdio: ["ignore", "pipe", "pipe"],
-      });
+  const docker = process.env.LOCAL_SUPABASE_RANCHER === "1" ? "rdctl" : "docker";
+  const prefix = process.env.LOCAL_SUPABASE_RANCHER === "1" ? ["shell", "--", "docker"] : [];
+  return execFileSync(
+    docker,
+    [
+      ...prefix,
+      "exec",
+      "-i",
+      "supabase_db_counselling-platform",
+      "psql",
+      "-U",
+      "postgres",
+      "-d",
+      "postgres",
+      "-X",
+      "-v",
+      "ON_ERROR_STOP=1",
+      "-At",
+    ],
+    { input: sql, encoding: "utf8", stdio: ["pipe", "pipe", "pipe"] },
+  );
 }
