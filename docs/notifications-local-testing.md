@@ -1,5 +1,7 @@
 # Phase 6: Meet and local notifications
 
+For the approved hosted synthetic Preview, use [staging access and deployment](staging-deployment.md). The fixture commands below remain local-only; never point them at the hosted project.
+
 Phase 6 uses manual Google Meet links and a local durable notification simulator. No email, WhatsApp or Google API call is made. A simulated delivery is a database receipt, not evidence that a person received anything. Customer email remains unverified; external delivery policies and providers remain launch work.
 
 ## Start and inspect

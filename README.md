@@ -248,6 +248,8 @@ The app uses the approved crisp white/blue visual system across public discovery
 
 Brand: **littlehello**. Intended public domain: **littlehello.in**. Domain connection and hosted configuration are pending Phase 10A.
 
-## Phase 10A: staging preparation
+## Phase 10A: protected staging
 
-Explicit hosted synthetic staging support is prepared locally for the dedicated project and Vercel Preview environment; no site has been deployed. Fixed-OTP precreated accounts, fake payments, fictional notes/feedback/admin and manual synthetic notification batches require strict staging configuration. Production synthetic features remain disabled by default. No real SMS, payment collection, automatic messaging or domain connection. Follow [staging deployment handoff](docs/staging-deployment.md); hosting eligibility, access protection, credentials, remote migrations and hosted acceptance/recovery remain pending.
+littlehello is deployed to a protected [staging Preview](https://littlehello-staging-git-staging-bibinmathews-projects.vercel.app) using the dedicated hosted Supabase project, fixed-OTP fictional accounts and simulated payments. GitHub CI is green on the verified app revision. Customer booking/payment/reschedule, encrypted counselor notes, admin operations, role/RLS denial, manual synthetic batches and recovery were exercised online. Owner access uses Vercel authentication; private tester access instructions are in ignored `.test-artifacts/phase10a/rollout/TESTER_ACCESS.txt`. See [deployment and recovery handoff](docs/staging-deployment.md).
+
+Real SMS, money collection, automatic notification scheduling, messaging, custom domain and customer launch remain deferred. Production synthetic features remain disabled by default. Main and unrelated projects remain unchanged. A failed credential-free Vercel initialization record is retained to enable true Preview deployments; do not delete it while the project is active.

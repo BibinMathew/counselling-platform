@@ -1,5 +1,7 @@
 # Local counselor workspace and private notes
 
+For the approved hosted synthetic Preview, use [staging access and deployment](staging-deployment.md). The fixture commands below remain local-only; never point them at the hosted project.
+
 Phase 8 implements assigned-session views and encrypted counselor-only notes. Messaging and message reporting are deferred. Use fictional test content only; production policies and real counseling data are outside this local implementation.
 
 ## Configuration

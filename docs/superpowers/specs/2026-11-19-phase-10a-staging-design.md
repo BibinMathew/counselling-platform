@@ -1,6 +1,6 @@
 # Phase 10A: littlehello private synthetic staging
 
-Status: approved by user for local implementation. Dedicated empty Supabase staging and online simulated payments confirmed; hosted mutation/deployment remains gated.
+Status: approved and implemented locally; the user subsequently explicitly approved and completed the hosted synthetic rollout, project-scoped automation bypass and seven-day tester link. See PROGRESS.md and the staging handoff for verified results and provider bootstrap limitations.
 
 ## Intent and agreed inputs
 

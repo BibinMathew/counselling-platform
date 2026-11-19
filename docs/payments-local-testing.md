@@ -1,5 +1,7 @@
 # Phase 5: local payment setup and testing
 
+For the approved hosted synthetic Preview, use [staging access and deployment](staging-deployment.md). The fixture commands below remain local-only; never point them at the hosted project.
+
 The implementation includes a local simulator and a Razorpay Test Mode adapter. The simulator is configured in this workspace and collects no money. Real Razorpay checkout/webhook delivery has not been verified because Test Mode credentials are not available. Live keys are rejected. Meet links and notifications belong to Phase 6.
 
 ## 1. Start the local environment

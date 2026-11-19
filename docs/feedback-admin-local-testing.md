@@ -1,5 +1,7 @@
 # Local feedback and administration
 
+For the approved hosted synthetic Preview, use [staging access and deployment](staging-deployment.md). The fixture commands below remain local-only; never point them at the hosted project.
+
 Phase 9 uses fictional test content only. The ignored local configuration enables `FEEDBACK_ADMIN_MODE=local`; `.env.example` defaults to `disabled`. Local mode requires development/test runtime and HTTP loopback Supabase. Restart the app after configuration changes. No content keys are needed: feedback comments and case remarks are restricted plain text in the local database. Phase 8 session notes retain their separate encryption and counselor-only access.
 
 Apply migrations `20261126000000_feedback.sql` and `20261126000001_admin_operations.sql` incrementally using `supabase migration up`. Never reset an existing demo database to apply them. No feedback/cases are backfilled. Production uses disabled mode. Existing customer/admin tools remain available when disabled; new routes show a disabled message and perform no Phase 9 private reads.
