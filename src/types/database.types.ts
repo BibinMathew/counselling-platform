@@ -222,6 +222,8 @@ export type Database = {
       };
     };
     Functions: {
+      get_counselor_workspace: { Args: { p_view?: string; p_page?: number }; Returns: Json };
+      get_counselor_session: { Args: { p_booking_id: string }; Returns: Json };
       get_customer_portal: {
         Args: { p_view?: string; p_page?: number; p_booking_id?: string };
         Returns: Json;

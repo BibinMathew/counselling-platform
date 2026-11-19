@@ -9,13 +9,13 @@ export const metadata: Metadata = {
 
 export default function LoginPage({ searchParams }: { searchParams: Promise<{ next?: string }> }) {
   return (
-    <main>
+    <div className="page-main auth-page">
       <h1>Phone sign-in</h1>
       <p>Use your Indian mobile number to access your account.</p>
       <Suspense fallback={<p>Loading sign-in...</p>}>
         <LoginContent searchParams={searchParams} />
       </Suspense>
-    </main>
+    </div>
   );
 }
 

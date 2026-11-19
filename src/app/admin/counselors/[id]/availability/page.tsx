@@ -13,12 +13,12 @@ export default function AdminCounselorAvailabilityPage({
   params: Promise<{ id: string }>;
 }) {
   return (
-    <main className="catalog-page">
+    <div className="page-main catalog-page">
       <Link href="/admin/counselors">Manage counselors</Link>
       <Suspense fallback={<p>Loading availability...</p>}>
         <AvailabilityContent params={params} />
       </Suspense>
-    </main>
+    </div>
   );
 }
 

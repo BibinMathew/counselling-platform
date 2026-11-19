@@ -5,13 +5,13 @@ import { getAdminAppointments, formatAppointmentTime } from "@/modules/meetings/
 import { MeetingForm } from "@/modules/meetings/components/meeting-form";
 export default function AppointmentsPage() {
   return (
-    <main className="catalog-page booking-page operations-page">
+    <div className="page-main catalog-page booking-page operations-page">
       <Link href="/admin">Admin area</Link>
       <h1>Appointments and meeting links</h1>
       <Suspense fallback={<p>Loading appointments…</p>}>
         <Content />
       </Suspense>
-    </main>
+    </div>
   );
 }
 async function Content() {

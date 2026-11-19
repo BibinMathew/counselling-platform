@@ -1,16 +1,15 @@
 import { Suspense } from "react";
 import { connection } from "next/server";
 import { ProfileForm } from "@/modules/identity/components/profile-form";
-import { signOut } from "@/modules/identity/actions";
 import { requireProfile } from "@/modules/identity/server/access";
 
 export default function ProfilePage() {
   return (
-    <main>
+    <div className="page-main auth-page">
       <Suspense fallback={<p>Loading account...</p>}>
         <ProfileContent />
       </Suspense>
-    </main>
+    </div>
   );
 }
 
@@ -25,9 +24,6 @@ async function ProfileContent() {
       <p>Contact email: {profile.email}</p>
       <p>Role: {profile.role}</p>
       <ProfileForm preferredName={profile.preferred_name ?? ""} />
-      <form action={signOut}>
-        <button type="submit">Sign out</button>
-      </form>
     </>
   );
 }

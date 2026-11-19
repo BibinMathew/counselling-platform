@@ -94,3 +94,33 @@ Captured payments already marked for admin review retain that outcome on every r
 - Keep optional legacy payment data absent instead of inventing past amounts. Confirmed payment evidence and captured admin exceptions outrank older/newer failed attempts.
 - Review refinement: optional owner-scoped booking locator resolves the actual page in one snapshot after Holds confirmation or rescheduling, preventing older appointments from disappearing on default page zero. This adds a read parameter and incremental migration, not a new mutation or privilege.
 - Past cards omit obsolete Join Meet affordances without changing the underlying authorized meeting access policy. Feedback, messaging/notes and launch policies remain deferred.
+
+## Phase 8 decisions — approved 19 November 2026
+
+- User reduced the selected local scope: implement counselor workspace and private notes; defer messaging and message reporting. Continue in-place, no commits.
+- Workspace exposes only assigned confirmed sessions, paged by 20 with one database reference time. Past retains Confirmed; no completion/no-show state or participant contact/payment fields. Existing Meet and availability behavior stays available.
+- One plain-text note per confirmed booking/assigned counselor, before or after the session; trim nonempty input, cap at 20,000 Unicode code points, require fictional-content acknowledgement per save. No autosave, sharing, deletion/export UI or production policy.
+- Server-only AES-256-GCM authenticates note/booking/owner/version. Retain old keys for decrypt/retry; encryption and idempotency use purpose-separated keys. Losing keys fails closed. Operators holding keys and DB can technically decrypt.
+- Session-derived actor plus independent service-only RPC authorization; raw tables and private functions deny browser roles, including admin. Content-free read/save audits are mandatory.
+- Atomic optimistic versions and stable request UUIDs protect concurrent saves and ambiguous retries. Replaying an older accepted save after a newer revision returns conflict without overwrite. Missing/corrupt old ciphertext blocks replacement.
+- Default disabled; enable only development/test and loopback Supabase. Existing demo data receives no note backfill. Local notes persist until explicit operator cleanup; real consent/retention/incident policies remain deferred.
+- Independent review's draft-loss finding required a failing browser case, then navigation/refresh discard prompts. Drafts remain in memory; browser Back, crashes and forced close are not durable recovery.
+
+## Phase 9 decisions — approved 19 November 2026
+
+- User selected feedback after a confirmed appointment's end time, without attendance/completion claims. One immutable 1–5 submission, optional 2,000 Unicode-point comment, explicit fictional-content acknowledgement; private to author/current complete admins, unavailable to counselors/public. Review acknowledgement is not complaint resolution.
+- User selected dashboard, booking oversight and audited operational exception tracking; refunds/credits/forced booking changes remain deferred. Existing specialist tools continue owning their mutations.
+- Twenty-row pages and full-population DB-time counts; no source issue/revenue/attendance inference from case closure. Cases use exact typed source FKs and derived linkage, deduplicate even when closed, reopen explicitly and retain restricted 1,000-code-point remark history.
+- Optimistic versions and stable request identities allow ambiguous replay without duplicate events or overwriting newer work. Role/owner checks and content-free audits are independent of server authorization. New private tables/RPCs are service-only; note privileges are unchanged.
+- Local fictional content only with a default-disabled gate. Feedback/remarks are restricted plaintext locally and do not reuse the note keyring. Production privacy/retention/clinical policy remains deferred.
+- UI form resets preserve drafts after rejected submissions, unique labels support retained hidden Next routes, and pending saves lock editable fields after independent review identified a draft race. Browser Back/crash recovery is outside the memory-only draft design.
+- Continue approved in-place implementation with independent review and no commit. Messaging/reporting are deferred; Phase 9.5 UI/UX polish precedes Phase 10.
+
+## Phase 9.5 decisions — approved 19 November 2026
+
+- User selected B (crisp white/blue and system sans-serif typography) from visual previews and approved applying it across existing public/customer/counselor/admin flows in place with independent review. Retain Counseling Platform name; no new feature, library, migration, provider, real-data policy or commit.
+- Shared request-time verified-role navigation, one global sign-in/sign-out and accessible mobile disclosure replace inconsistent orientation; domain actions/guards remain intact. Validated selected-booking return paths are preserved in header authentication links.
+- Reorganize CSS into semantic surfaces/type/control/status tokens rather than layering another conflicting theme. Current settings provide any homepage price/duration; omit unavailable facts and keep public core usable without the backend. No fictional preview data becomes app data.
+- Keep page mains unique and focusable, measure header height for skip offsets, preserve focused links across responsive changes and respect reduced motion. Body/status/control contrast pairs are checked against actual token backgrounds.
+- Global sign-out uses a cancelable content-free leave event so private note/feedback/case guards can retain drafts. Same-page fragments do not require discard. No form is remounted by opening/closing navigation; pending/version/request safeguards remain unchanged.
+- Cross-browser/device/assistive-technology certification and production launch remain Phase10 work. This polish uses agent browser/keyboard/mobile/zoom acceptance and existing full workflow regressions.

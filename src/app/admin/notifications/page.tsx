@@ -10,13 +10,13 @@ export default function NotificationsPage({
   searchParams: Promise<{ page?: string; status?: string }>;
 }) {
   return (
-    <main className="catalog-page booking-page operations-page">
+    <div className="page-main catalog-page booking-page operations-page">
       <Link href="/admin">Admin area</Link>
       <h1>Notifications</h1>
       <Suspense fallback={<p>Loading notifications…</p>}>
         <Content searchParams={searchParams} />
       </Suspense>
-    </main>
+    </div>
   );
 }
 async function Content({

@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { CounselorPortrait } from "@/modules/catalog/components/counselor-portrait";
 import Link from "next/link";
 import { connection } from "next/server";
 import { Suspense } from "react";
@@ -9,13 +9,13 @@ import { formatPrice } from "@/modules/payments/model";
 
 export default function CounselorsPage() {
   return (
-    <main className="catalog-page">
+    <div className="page-main catalog-page">
       <Link href="/">Home</Link>
       <h1>Find a counselor</h1>
       <Suspense fallback={<p>Loading counselors...</p>}>
         <Directory />
       </Suspense>
-    </main>
+    </div>
   );
 }
 
@@ -35,14 +35,7 @@ async function Directory() {
       <div className="counselor-list">
         {counselors.map((counselor) => (
           <article className="counselor-card" key={counselor.id}>
-            <Image
-              className="counselor-photo"
-              src={counselor.photo_url}
-              alt={`Portrait of ${counselor.display_name}`}
-              width={160}
-              height={180}
-              unoptimized
-            />
+            <CounselorPortrait src={counselor.photo_url} name={counselor.display_name} />
             <div>
               <h2>
                 <Link href={`/counselors/${counselor.id}`}>{counselor.display_name}</Link>

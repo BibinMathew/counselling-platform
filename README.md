@@ -1,6 +1,6 @@
 # Counseling Platform
 
-A responsive counseling booking platform built as a modular Next.js monolith. Phases 0–7 implement foundation, identity, counselor catalog, availability, booking holds, payment-backed confirmation, manual Meet links, simulated notifications, and the customer portal locally. Contact email is captured once after phone OTP, without email verification or email OTP. Phase 5 includes a local payment simulator and Razorpay Test Mode adapter; real Razorpay testing awaits keys. Messaging, notes, feedback and broader session operations remain unimplemented.
+A responsive counseling booking platform built as a modular Next.js monolith. Phases 0–9 implement foundation, identity, counselor catalog, availability, booking holds, payment-backed confirmation, manual Meet links, simulated notifications, the customer portal, and the counselor workspace with encrypted private notes, private feedback and operational admin tools locally. Contact email is captured once after phone OTP, without email verification or email OTP. Phase 5 includes a local payment simulator and Razorpay Test Mode adapter; real Razorpay testing awaits keys. Messaging, message reporting and booking/financial remedies remain deferred. Phase 8 accepts fictional content only and stays disabled in production.
 
 ## Requirements
 
@@ -233,3 +233,15 @@ Admins attach unique manual Google Meet links at `/admin/appointments`; confirme
 `/bookings` now offers All, Upcoming, Past and Holds views with20-row pagination, authorized Meet/payment controls, stored payment totals and Book Again for eligible past counselors. Past appointments retain their actual status. Rebooking uses fresh current availability and checkout; successful Holds payment and rescheduling locate the exact booking even on a later page. See [customer portal testing](docs/customer-portal-local-testing.md).
 
 The landing page now adapts to the current server-verified account: signed-out visitors see phone sign-in; signed-in users see Sign out, their profile and links for their customer, counselor or admin role. Accounts missing their required contact email see Complete profile before role navigation. Protected pages independently enforce authorization.
+
+## Phase 8 counselor workspace and private notes
+
+Counselors use `/counselor` for assigned Upcoming/Past sessions and `/counselor/appointments/[bookingId]` for details and their private note. Local notes use server encryption, explicit fictional-content acknowledgement and version/conflict protection. Default disabled mode retains the basic counselor page. Messaging and message reports are deferred. See [workspace and note testing](docs/workspace-notes-local-testing.md) for manual acceptance, local configuration, key rotation and limits.
+
+## Phase 9 private feedback and administration
+
+After a confirmed appointment ends, its customer may submit one private 1–5 rating and optional comment. Admins review feedback, inspect operational counts/bookings and track source-linked cases separately from payment/booking facts. Local fictional content only; no refunds, credits or forced booking changes. See [manual testing, routes and RPCs](docs/feedback-admin-local-testing.md). UI/UX polish is Phase 9.5, followed by Phase 10 hardening.
+
+## Phase 9.5 interface polish
+
+The app uses the approved crisp white/blue visual system across public discovery, identity and all role workspaces. A verified-role header, light desktop sidebar and accessible mobile Menu provide navigation; one global sign-in/sign-out control preserves booking return paths and dirty-draft confirmation. Public pages, appointment/date/status cards, calendars, operational metrics and forms share readable responsive styles. Existing rules/data/local-only gates remain unchanged. See [UI/manual acceptance](docs/ui-polish-local-testing.md). Phase10 hardening remains next; no launch is implied.

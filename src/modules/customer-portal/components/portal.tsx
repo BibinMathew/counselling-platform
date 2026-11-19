@@ -1,3 +1,6 @@
+import { DateTile, StatusBadge } from "@/components/ui";
+import { readFeedbackAdminMode } from "@/lib/local-features";
+import { getFeedbackSummaries } from "@/modules/feedback/server";
 import Link from "next/link";
 import { BookingPayment } from "@/modules/payments/components/checkout";
 import { formatPrice } from "@/modules/payments/model";
@@ -14,6 +17,17 @@ const format = (value: string) =>
   }).format(new Date(value));
 export async function CustomerPortal({ query }: { query: PortalQueryInput }) {
   const result = await getCustomerPortal(query);
+  const feedbackEnabled = readFeedbackAdminMode(process.env) === "local";
+  let feedbackUnavailable = false;
+  let feedbackRows: { booking_id: string; submitted: boolean }[] = [];
+  if (feedbackEnabled) {
+    try {
+      feedbackRows = await getFeedbackSummaries(result.items.map((b) => b.id));
+    } catch {
+      feedbackUnavailable = true;
+    }
+  }
+  const feedback = new Map(feedbackRows.map((row) => [row.booking_id, row.submitted]));
   const price = await getPaymentPrice();
   const enabled = readPaymentConfig(process.env).mode !== "disabled";
   const url = (page: number) => `/bookings?view=${result.view}&page=${page}`;
@@ -46,11 +60,24 @@ export async function CustomerPortal({ query }: { query: PortalQueryInput }) {
       </p>
       <p>Page {result.page + 1} · Times shown in Asia/Kolkata</p>
       {!result.items.length && <p>{empty[result.view]}</p>}
+      {feedbackUnavailable && (
+        <p>Feedback information is temporarily unavailable. Refresh to retry.</p>
+      )}
       <div className="booking-list">
         {result.items.map((booking) => (
           <AppointmentCard
             key={booking.id}
             booking={booking}
+            feedbackStatus={
+              feedbackEnabled &&
+              !feedbackUnavailable &&
+              booking.status === "confirmed" &&
+              booking.is_past
+                ? feedback.get(booking.id)
+                  ? "submitted"
+                  : "available"
+                : undefined
+            }
             enabled={enabled}
             currentPrice={price.amount_paise}
             confirmedHref={result.view === "holds" ? `/bookings?booking=${booking.id}` : undefined}
@@ -69,15 +96,29 @@ function AppointmentCard({
   enabled,
   currentPrice,
   confirmedHref,
+  feedbackStatus,
 }: {
   booking: PortalBooking;
   enabled: boolean;
   currentPrice: number;
   confirmedHref?: string;
+  feedbackStatus?: "submitted" | "available";
 }) {
   return (
     <article className="booking-entry" data-booking-id={booking.id}>
-      <h2>{booking.counselor_name}</h2>
+      <div className="appointment-heading">
+        <DateTile value={booking.start_at} />
+        <div>
+          <h2>{booking.counselor_name}</h2>
+          <StatusBadge status={booking.status}>
+            {booking.status === "confirmed"
+              ? "Confirmed"
+              : booking.status === "held"
+                ? "Held"
+                : "Expired"}
+          </StatusBadge>
+        </div>
+      </div>
       <p>
         <time dateTime={booking.start_at}>{format(booking.start_at)}</time>
         {" – "}
@@ -110,12 +151,19 @@ function AppointmentCard({
         paymentState={booking.payment_state ?? undefined}
         confirmedHref={confirmedHref}
       />
+      {feedbackStatus && (
+        <p>
+          <Link href={`/bookings/${booking.id}/feedback`}>
+            {feedbackStatus === "submitted" ? "View feedback" : "Leave private feedback"}
+          </Link>
+        </p>
+      )}
       {booking.status === "confirmed" && (
         <>
-          <p>Confirmed</p>
           {!booking.is_past &&
             (booking.meeting_url ? (
               <a
+                className="button-primary"
                 href={booking.meeting_url}
                 target="_blank"
                 rel="noopener noreferrer"

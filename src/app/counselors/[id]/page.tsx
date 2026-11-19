@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { CounselorPortrait } from "@/modules/catalog/components/counselor-portrait";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
@@ -20,12 +20,12 @@ export default function CounselorPage({
   searchParams: Promise<{ reschedule?: string }>;
 }) {
   return (
-    <main className="catalog-page">
+    <div className="page-main catalog-page">
       <Link href="/counselors">All counselors</Link>
       <Suspense fallback={<p>Loading profile...</p>}>
         <CounselorContent params={params} searchParams={searchParams} />
       </Suspense>
-    </main>
+    </div>
   );
 }
 
@@ -66,14 +66,7 @@ async function CounselorContent({
   }
   return (
     <article className="counselor-detail">
-      <Image
-        className="counselor-photo"
-        src={counselor.photo_url}
-        alt={`Portrait of ${counselor.display_name}`}
-        width={160}
-        height={180}
-        unoptimized
-      />
+      <CounselorPortrait src={counselor.photo_url} name={counselor.display_name} />
       <div>
         <h1>{counselor.display_name}</h1>
         <p>{counselor.qualifications}</p>

@@ -80,7 +80,13 @@ for (const scenario of cases)
       const hrefs = await nav
         .getByRole("link")
         .evaluateAll((links) => links.map((link) => link.getAttribute("href")).sort());
-      expect(hrefs).toEqual([...scenario.links].sort());
+      const extra =
+        scenario.role === "admin" &&
+        scenario.complete &&
+        process.env.FEEDBACK_ADMIN_MODE === "local"
+          ? ["/admin/bookings", "/admin/feedback", "/admin/exceptions"]
+          : [];
+      expect(hrefs).toEqual([...scenario.links, ...extra].sort());
       await page.setViewportSize({ width: 390, height: 844 });
       expect(await page.locator("body").evaluate((el) => el.scrollWidth)).toBeLessThanOrEqual(390);
       if (scenario.complete)

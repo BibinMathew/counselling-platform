@@ -6,13 +6,13 @@ import { getAdminCounselors } from "@/modules/catalog/server/catalog";
 
 export default function AdminCounselorsPage() {
   return (
-    <main className="catalog-page">
+    <div className="page-main catalog-page">
       <Link href="/admin">Admin area</Link>
       <h1>Manage counselors</h1>
       <Suspense fallback={<p>Loading counselors...</p>}>
         <AdminCatalog />
       </Suspense>
-    </main>
+    </div>
   );
 }
 

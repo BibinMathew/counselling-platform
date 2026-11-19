@@ -7,13 +7,13 @@ import { requireProfileRole } from "@/modules/identity/server/access";
 
 export default function CounselorAvailabilityPage() {
   return (
-    <main className="catalog-page">
+    <div className="page-main catalog-page">
       <Link href="/counselor">Counselor area</Link>
       <h1>Your availability</h1>
       <Suspense fallback={<p>Loading availability...</p>}>
         <AvailabilityContent />
       </Suspense>
-    </main>
+    </div>
   );
 }
 

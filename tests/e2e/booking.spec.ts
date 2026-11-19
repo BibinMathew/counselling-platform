@@ -108,7 +108,7 @@ test("customers can hold and reschedule without concurrent conflicts", async ({
     await expect(page.locator("body")).toHaveJSProperty("scrollWidth", 390);
     await expect(page.getByRole("button", { name: "Hold this time" })).toHaveCSS(
       "background-color",
-      "rgb(23, 102, 90)",
+      "rgb(45, 87, 181)",
     );
     await page.getByRole("button", { name: "Hold this time" }).click({ timeout: 10000 });
     await expect(page).toHaveURL(/\/bookings$/);

@@ -107,3 +107,15 @@ See [Meet and notification testing](docs/notifications-local-testing.md). Run `p
 ## Phase 7 portal checks
 
 Follow [customer portal testing](docs/customer-portal-local-testing.md). The focused SQL suite covers ownership, exact boundaries, publication/role changes, stable pagination, missing legacy data and the confirmed-booking locator. Browser fixtures test old-hold payment behind more than20 newer records, reschedule continuity, rebooking with a fresh order/current price, another counselor, fallback, mobile and keyboard navigation. Preserve demo identities and restore the local worker after concurrency-sensitive runs.
+
+## Phase 8 workspace checks
+
+Follow [workspace and private-note testing](docs/workspace-notes-local-testing.md). The ignored local mode/keyring is enabled for fictional content only. Default disabled mode preserves basic counselor appointments/Meet and requires no content keys. Both workspace migrations must be applied incrementally, never by resetting existing demo data. The guide covers private key backups/rotation, real lost-response replay integration, browser draft/concurrency/access tests and disabled-mode checks. Production builds set `COUNSELOR_WORKSPACE_MODE=disabled` alongside disabled payment/notification simulators. Messaging and reports are deferred.
+
+## Phase 9 feedback/admin checks
+
+See [local feedback/admin testing](docs/feedback-admin-local-testing.md) for manual journeys, routes/RPCs, local mode and limits. `FEEDBACK_ADMIN_MODE=local` is enabled only in ignored configuration; default/production mode is disabled. Run SQL suites separately from browser/live fixtures because they share local DB state. New tests exercise concurrency, immutable retries, role/owner boundaries, source-linked cases and independent underlying issue queues. Preserve Phase 8 notes/keys and demo identities; pause/restore the owned poller around notification race regressions. No Phase 9.5 redesign is included.
+
+## Phase 9.5 UI checks
+
+Follow [UI/manual acceptance](docs/ui-polish-local-testing.md). New pure navigation tests and generated-role browser fixtures cover the shared shell, role/gate/active matching, validated booking auth returns, Menu/keyboard/resize focus, skip/main landmarks and narrow layouts. Existing note/case flows cover canceled global sign-out/sidebar navigation and same-page skip behavior with dirty drafts. No UI library or font service was added. Use existing local feature flags; the public core also renders with public Supabase configuration absent.

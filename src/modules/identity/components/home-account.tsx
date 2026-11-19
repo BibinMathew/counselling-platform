@@ -1,8 +1,8 @@
+import { readFeedbackAdminMode } from "@/lib/local-features";
 import "server-only";
 import Link from "next/link";
 import { connection } from "next/server";
 import { getCurrentProfile } from "@/modules/identity/server/access";
-import { signOut } from "@/modules/identity/actions";
 import type { ProfileRole } from "@/modules/identity/roles";
 
 const roleLinks: Record<ProfileRole, { href: string; label: string }[]> = {
@@ -30,15 +30,18 @@ export async function HomeAccount() {
   const configured =
     process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
   const profile = configured ? await getCurrentProfile() : null;
-  if (!profile)
-    return (
-      <p>
-        <Link href="/login">Sign in with phone</Link>
-      </p>
-    );
+  if (!profile) return null;
   const links = profile.email
     ? [...roleLinks[profile.role], { href: "/profile", label: "Your profile" }]
     : [{ href: "/complete-profile", label: "Complete profile" }];
+  if (profile.email && profile.role === "admin" && readFeedbackAdminMode(process.env) === "local")
+    links.splice(
+      links.length - 1,
+      0,
+      { href: "/admin/bookings", label: "Booking oversight" },
+      { href: "/admin/feedback", label: "Private feedback" },
+      { href: "/admin/exceptions", label: "Operational exceptions" },
+    );
   return (
     <>
       <nav aria-label="Your account" className="home-account">
@@ -51,9 +54,6 @@ export async function HomeAccount() {
           ))}
         </ul>
       </nav>
-      <form action={signOut} className="booking-form">
-        <button type="submit">Sign out</button>
-      </form>
     </>
   );
 }

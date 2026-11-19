@@ -2,7 +2,9 @@ import { expect, test } from "@playwright/test";
 
 test("homepage loads", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: "Counseling Platform" })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Space to pause. Someone to talk to." }),
+  ).toBeVisible();
 });
 
 test("local customer can sign in and is denied the admin area", async ({ page }) => {

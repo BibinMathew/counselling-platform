@@ -11,11 +11,11 @@ export default function CompleteProfilePage({
   searchParams: Promise<{ next?: string }>;
 }) {
   return (
-    <main>
+    <div className="page-main auth-page">
       <Suspense fallback={<p>Loading account...</p>}>
         <CompleteProfileContent searchParams={searchParams} />
       </Suspense>
-    </main>
+    </div>
   );
 }
 

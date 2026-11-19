@@ -9,13 +9,13 @@ export default function BookingsPage({
   searchParams: Promise<PortalQueryInput>;
 }) {
   return (
-    <main className="catalog-page booking-page">
+    <div className="page-main catalog-page booking-page">
       <Link href="/customer">Customer area</Link>
       <h1>Your bookings</h1>
       <Suspense fallback={<p>Loading bookings...</p>}>
         <Content searchParams={searchParams} />
       </Suspense>
-    </main>
+    </div>
   );
 }
 async function Content({ searchParams }: { searchParams: Promise<PortalQueryInput> }) {

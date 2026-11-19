@@ -8,13 +8,13 @@ import { requireProfileRole } from "@/modules/identity/server/access";
 
 export default function AdminAvailabilitySettingsPage() {
   return (
-    <main className="catalog-page">
+    <div className="page-main catalog-page">
       <Link href="/admin">Admin area</Link>
       <h1>Scheduling settings</h1>
       <Suspense fallback={<p>Loading settings...</p>}>
         <SettingsContent />
       </Suspense>
-    </main>
+    </div>
   );
 }
 

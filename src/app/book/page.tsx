@@ -13,12 +13,12 @@ type Selection = { counselor?: string; start?: string; reschedule?: string };
 
 export default function BookPage({ searchParams }: { searchParams: Promise<Selection> }) {
   return (
-    <main className="catalog-page booking-page">
+    <div className="page-main catalog-page booking-page">
       <Link href="/counselors">All counselors</Link>
       <Suspense fallback={<p>Loading selected time...</p>}>
         <BookingContent searchParams={searchParams} />
       </Suspense>
-    </main>
+    </div>
   );
 }
 

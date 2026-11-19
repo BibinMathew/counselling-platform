@@ -168,6 +168,12 @@ test("admin manages a counselor profile visible to visitors", async ({
         .filter({ has: visitor.getByRole("heading", { name: "Catalog Test Counselor" }) })
         .getByRole("link", { name: "View profile" })
         .click();
+      await expect(
+        visitor.getByRole("img", {
+          name: "Portrait unavailable for Catalog Test Counselor",
+          exact: true,
+        }),
+      ).toBeVisible();
       await expect(visitor.getByText("A synthetic counselor profile.")).toBeVisible();
       await expect(visitor.getByText("45-minute session · ₹699")).toBeVisible();
       await expect(visitor.locator("body")).toHaveJSProperty("scrollWidth", 390);

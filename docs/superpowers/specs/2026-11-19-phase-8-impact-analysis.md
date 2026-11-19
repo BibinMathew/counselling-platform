@@ -1,6 +1,6 @@
 # Phase 8: Counselor workspace impact analysis
 
-Status: Scope selection and design pending; no Phase 8 product implementation. The user requested Phase 8 on 19 November 2026. This analysis records existing constraints and affected boundaries, not approval of messaging or clinical-note policy.
+Status: The user approved local workspace and private notes, then explicitly deferred messaging. Message reporting is deferred with messaging. The reduced approved design is `2026-11-19-phase-8-counselor-workspace-design.md`; implementation and verification are recorded in `PROGRESS.md`. The broader candidate impacts below are historical planning, not implemented scope.
 
 ## Existing foundation
 
@@ -15,10 +15,10 @@ Status: Scope selection and design pending; no Phase 8 product implementation. T
 | Area                  | Impact                                                                                                                                         |
 | --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
 | Counselor workspace   | Assigned upcoming/current and past confirmed sessions, pagination, permitted customer display details, booking detail navigation and Meet link |
-| Customer portal       | Owner-only entry to the matching appointment conversation                                                                                      |
-| Messaging             | Appointment-scoped text history, send authorization/window, current role checks, pagination, bounded input and replay/rate controls            |
+| Customer portal       | Deferred: owner-only entry to a future appointment conversation                                                                                |
+| Messaging             | Deferred: appointment-scoped text history, send authorization/window, current role checks, pagination, bounded input and replay/rate controls  |
 | Confidential notes    | Session and counselor ownership, server-only encryption/decryption, save conflict detection, minimal content-free audit                        |
-| Reporting             | Participant-initiated report and explicitly limited admin review; no routine note access                                                       |
+| Reporting             | Deferred: participant-initiated report and explicitly limited admin review; no routine note access                                             |
 | Identity/navigation   | Existing role links remain canonical; no multi-role expansion                                                                                  |
 | Database              | Incremental tables/indexes/RLS and narrow trusted functions; existing booking/payment locks and identities preserved                           |
 | Documentation/testing | Per-feature decisions, local-only configuration and key handling, operating guide, unit/SQL/browser/adversarial acceptance cases               |

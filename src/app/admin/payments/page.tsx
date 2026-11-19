@@ -10,13 +10,13 @@ import { formatPrice, paymentOrderSchema } from "@/modules/payments/model";
 import { z } from "zod";
 export default function PaymentsPage() {
   return (
-    <main className="catalog-page">
+    <div className="page-main catalog-page">
       <Link href="/admin">Admin area</Link>
       <h1>Payments</h1>
       <Suspense fallback={<p>Loading payments...</p>}>
         <Content />
       </Suspense>
-    </main>
+    </div>
   );
 }
 async function Content() {

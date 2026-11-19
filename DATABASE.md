@@ -49,15 +49,15 @@ The role audit table is not readable through client APIs. It contains no identit
 | `booking_settings`               | `id`, `hold_minutes`                                                                                                                                        | Global temporary-hold duration.                                                                                 |
 | `booking_audit_events`           | `id`, `actor_user_id`, `booking_id`, `action`, `old_start_at`, `new_start_at`, `occurred_at`                                                                | Records booking lifecycle and hold-setting actions.                                                             |
 
-`public_counselors` and `public_session_settings` are views, not additional tables. Supabase separately manages `auth.users` and other internal tables. Payment tables are listed below; appointment-note tables remain unimplemented.
+`public_counselors` and `public_session_settings` are views, not additional tables. Supabase separately manages `auth.users` and other internal tables. Payment tables are listed below; Phase 8 private-note tables are described below.
 
 ## Future Data Model Proposals
 
-The following entities are **proposals from the requirements, not implemented schema**: notifications, messages, session notes, feedback, and broader audit events. Their columns and relationships still require migration-level design and review.
+The following entities are **proposals from the requirements, not implemented schema**: messages, message reports, and booking/financial remedy workflows. Their columns and relationships still require migration-level design and review.
 
 Phase 5 payment tables and operations implement these guarantees at the trusted server/database boundary.
 
-Before storing notes or messages, resolve consent, access, retention, deletion, incident response, and counselor-switching policies. Do not infer these from the proposed table list.
+Before storing real notes or messages, resolve production consent, access, retention, deletion, incident response, and counselor-switching policies. Do not infer these from the proposed table list.
 
 ## Local Supabase
 
@@ -97,3 +97,27 @@ Reminders use database UTC time, skip past thresholds when scheduled, and never 
 Migrations `20261124000000` and `20261124000001` add owner/creation and owner/start indexes plus `get_customer_portal(text,integer,uuid)`. The second incremental migration replaces the initial two-argument read function with an optional owner-scoped booking locator and resolved page. No booking data or lifecycle status is changed. Legacy `get_my_bookings` remains unchanged.
 
 The RPC requires an authenticated complete customer profile, pins `search_path`, denies anonymous execution and explicitly scopes every private join to the actor's booking/order. It returns safe20-row summaries, actual snapshot amounts, durable confirmed/admin-review payment precedence and one database reference time. Existing RLS/mutation grants remain unchanged.
+
+## Phase 8 local workspace and notes
+
+Migrations `20261125000000_workspace_notes.sql` and `20261125000001_workspace_read_links.sql` add counselor-scoped paginated summary/detail reads and private note persistence without a status change or demo backfill. The second migration preserves authorized upcoming Meet links and explicitly orders JSON aggregation.
+
+`session_notes` stores one encrypted envelope per booking/counselor, with immutable note identity and increasing version. `session_note_save_requests` stores opaque request identities, expected/accepted versions, keyed digests and fictional-content acknowledgement time. `session_note_audit_events` stores only actor/booking/note IDs, opened/saved action, version and timestamp. These tables enable RLS and revoke raw anon/authenticated/public privileges, including ordinary admins.
+
+`get_counselor_workspace` and `get_counselor_session` verify the current complete counselor and assignment. `read_session_note` and `save_session_note` are service-only; their private authorization helper is not browser callable. They independently recheck actor role, assignment and confirmed state under participant/booking locks. Reads audit before decryption. Saves atomically validate version/request identity, persist ciphertext/receipt and audit once. An old accepted replay returns its accepted version plus the current version, allowing the app to report conflict without overwriting.
+
+Private RPCs accept encrypted envelopes only from trusted server code; envelope authentication and retained-key digest generation are application responsibilities. No browser key/service credential is introduced. Retention/deletion remains explicit local operator cleanup; fixture bookings cascade to their notes/receipts/audits. Keys must be backed up separately and retained for old ciphertext and retries. See [workspace testing and limits](docs/workspace-notes-local-testing.md).
+
+## Phase 9 feedback and operational cases
+
+Migrations `20261126000000_feedback.sql` and `20261126000001_admin_operations.sql` add `appointment_feedback`, `operational_cases`, `operational_case_events`, `operational_case_receipts` and `phase9_audit_events`. New tables enable RLS and revoke raw public/anon/authenticated privileges. New `phase9_*` RPCs and helpers are service-only; trusted app entry points derive the actor and enforce the local feature gate. RPCs independently check complete canonical roles/owner/state and bounded inputs under the existing scheduling lock before participant/booking/case locks.
+
+Feedback has one immutable booking-unique row, integer 1–5 rating and optional 2,000-code-point comment, acknowledgement and optional one-time review metadata. Matching normalized retries reuse the receipt; changed payloads cannot overwrite. End-time eligibility uses database time and never marks attendance/completion.
+
+Cases have exactly one typed source FK (booking/order/event/job), canonical unique source identity and derived nullable booking linkage. State/version, restricted remark history, request digest/accepted-version receipt and content-free audit commit atomically. Replays return accepted/current versions; stale/changed identities cannot overwrite. Source deletion cascades fixture dependencies, and the product exposes no source/case deletion. Case closure cannot mutate payment/booking/job evidence or hide source issues.
+
+Admin/own-feedback reads are audited without content. Audit holds opaque IDs, fixed actions, old/new status/version and timestamps; no rating/comment/remark, contacts, ciphertext or credentials. Local comments/remarks are restricted plaintext rather than note-keyring ciphertext. No production retention, refund or real-data policy is introduced. [Operating and RPC guide](docs/feedback-admin-local-testing.md).
+
+## Phase 9.5 UI-only changes
+
+No schema, RPC, grants, RLS or database policy changed for the visual polish. The same25 migrations and all existing authorization/concurrency assertions remain the validation baseline. Preservation checks compare exact original identities/bookings/settings and database-side fingerprints of private notes/feedback/cases without printing their content.
