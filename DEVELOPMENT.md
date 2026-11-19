@@ -99,3 +99,11 @@ Playwright starts the development server automatically. Install Chromium once pe
 Follow [the payment setup/testing guide](docs/payments-local-testing.md) for simulator configuration, failure/replay/late-payment scenarios, reconciliation commands, and Razorpay Test Mode setup. Scripts load ignored `.env.local` where appropriate. `pnpm test:integration` now runs TAP SQL directly in the local container and checks assertion output; it does not need a separate pg_prove image. Set `LOCAL_SUPABASE_RANCHER=1` for `rdctl shell` transport. `pnpm test:migrations` replays all migrations in a disposable local database using schema-only Auth/extensions baseline.
 
 Use an isolated browser port, for example `PLAYWRIGHT_PORT=3110 pnpm test:e2e --grep-invert 'local customer can sign in and is denied the admin area' --workers=1`. Payment browser fixtures create and clean up their own accounts. Keep the simulator disabled when serving a production build (`PAYMENT_MODE=disabled pnpm build`); real Test Mode configuration requires the server-side Razorpay keys and a separate webhook secret. Never copy the service-role key to public environment variables.
+
+## Phase 6 local workflow
+
+See [Meet and notification testing](docs/notifications-local-testing.md). Run `pnpm notifications:local run` for one batch or `pnpm notifications:local poll` for local five-second polling after enabling server-only simulator configuration. Use `/admin/appointments` for manual links and `/admin/notifications` for synthetic previews, failure injection and retries. Keep both simulator modes disabled for production builds. Real email/WhatsApp and Google APIs are not configured.
+
+## Phase 7 portal checks
+
+Follow [customer portal testing](docs/customer-portal-local-testing.md). The focused SQL suite covers ownership, exact boundaries, publication/role changes, stable pagination, missing legacy data and the confirmed-booking locator. Browser fixtures test old-hold payment behind more than20 newer records, reschedule continuity, rebooking with a fresh order/current price, another counselor, fallback, mobile and keyboard navigation. Preserve demo identities and restore the local worker after concurrency-sensitive runs.

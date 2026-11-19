@@ -54,6 +54,25 @@ type ReadOnlyPaymentTable<T> = { Row: T; Insert: never; Update: never; Relations
 export type Database = {
   public: {
     Tables: {
+      notification_jobs: ReadOnlyPaymentTable<{
+        id: string;
+        booking_id: string;
+        recipient_id: string;
+        channel: "email" | "whatsapp";
+        template: string;
+        schedule_revision: number;
+        link_revision: number;
+        due_at: string;
+        status: string;
+        attempts: number;
+        next_attempt_at: string;
+        lease_token: string | null;
+        lease_until: string | null;
+        error_code: string | null;
+        fail_next: boolean;
+        created_at: string;
+      }>;
+
       payment_settings: ReadOnlyPaymentTable<{
         id: boolean;
         amount_paise: number;
@@ -203,6 +222,31 @@ export type Database = {
       };
     };
     Functions: {
+      get_customer_portal: {
+        Args: { p_view?: string; p_page?: number; p_booking_id?: string };
+        Returns: Json;
+      };
+      set_booking_meeting: { Args: { p_booking_id: string; p_url: string }; Returns: undefined };
+      get_accessible_booking_meetings: {
+        Args: Record<string, never>;
+        Returns: { booking_id: string; meeting_url: string; revision: number }[];
+      };
+      get_assigned_confirmed_bookings: {
+        Args: Record<string, never>;
+        Returns: { id: string; start_at: string; end_at: string; meeting_url: string | null }[];
+      };
+      get_admin_confirmed_bookings: {
+        Args: Record<string, never>;
+        Returns: {
+          id: string;
+          counselor_name: string;
+          start_at: string;
+          meeting_url: string | null;
+        }[];
+      };
+      retry_notification: { Args: { p_job_id: string }; Returns: undefined };
+      fail_next_notification_attempt: { Args: { p_job_id: string }; Returns: undefined };
+
       reserve_payment_order: {
         Args: { p_booking_id: string; p_provider: string };
         Returns: PaymentOrderRecord;

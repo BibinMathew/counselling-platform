@@ -342,3 +342,59 @@ a {
 .payment-reference {
   overflow-wrap: anywhere;
 }
+
+.operations-form {
+  display: grid;
+  gap: 0.75rem;
+  max-width: 40rem;
+}
+.operations-form input {
+  width: 100%;
+  min-width: 0;
+  padding: 0.75rem;
+  border: 1px solid #879b93;
+  border-radius: 0.5rem;
+}
+.booking-entry {
+  overflow-wrap: anywhere;
+}
+.booking-entry details {
+  margin-block: 1rem;
+}
+
+.portal-filters,
+.portal-pagination {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-block: 1rem;
+}
+.portal-filters a {
+  border: 1px solid #17665a;
+  padding: 0.5rem 0.8rem;
+  border-radius: 0.4rem;
+}
+.portal-filters a[aria-current="page"] {
+  background: #17665a;
+  color: #fff;
+}
+.portal-filters a:focus-visible,
+.portal-pagination a:focus-visible {
+  outline: 3px solid #be722e;
+  outline-offset: 3px;
+}
+
+.home-account {
+  margin-block: 1.5rem;
+}
+.home-account h2 {
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+.home-account li {
+  margin-block: 0.65rem;
+}
+.home-account a:focus-visible {
+  outline: 3px solid #be722e;
+  outline-offset: 3px;
+}

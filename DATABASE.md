@@ -83,3 +83,17 @@ Migrations `20261122000000`–`20261122000002` add these tables, privileges, and
 Use `pnpm test:integration` for transactional TAP checks and `pnpm test:migrations` for an isolated fresh schema replay. Neither resets the application database.
 
 Captured payments already marked for admin review retain that outcome on every replay; no later disappearance of a conflict silently resolves the exception. Unmatched signed event receipts can become linked only after canonical order recovery with the same digest; true identity conflicts remain rejected.
+
+## Phase 6: Meet and notification schema
+
+Migrations `20261123000000`–`20261123000001` add `booking_meetings`, historical unique `meeting_url_reservations`, `notification_jobs`, private `notification_simulator_receipts`, and `meeting_notification_audit_events`. Booking deletion cascades only its dependent local workflow records. Existing demo data is preserved; future confirmed bookings receive idempotent backfill jobs.
+
+Raw meeting reads/writes are denied to browser roles. Participant RPCs return only authorized meeting URLs; assigned-counselor listings omit customer contact/payment details. Admin-only RPCs assign links and audit changes. Job summaries have admin-only RLS; browser roles cannot read simulator receipts. Claim/dispatch functions are service-only; all definer functions pin `search_path`. Semantic job keys and receipt primary keys deduplicate replay. Schedule/link revisions, lease tokens, current-role checks and the scheduling advisory lock protect dispatch against stale work.
+
+Reminders use database UTC time, skip past thresholds when scheduled, and never deliver after the session starts. Automatic attempts stop after five failures; manual admin retry is audited. No clinical content or real provider payload is stored by this phase.
+
+## Phase 7: Portal read model
+
+Migrations `20261124000000` and `20261124000001` add owner/creation and owner/start indexes plus `get_customer_portal(text,integer,uuid)`. The second incremental migration replaces the initial two-argument read function with an optional owner-scoped booking locator and resolved page. No booking data or lifecycle status is changed. Legacy `get_my_bookings` remains unchanged.
+
+The RPC requires an authenticated complete customer profile, pins `search_path`, denies anonymous execution and explicitly scopes every private join to the actor's booking/order. It returns safe20-row summaries, actual snapshot amounts, durable confirmed/admin-review payment precedence and one database reference time. Existing RLS/mutation grants remain unchanged.

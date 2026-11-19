@@ -10,7 +10,9 @@
 
 **Phase 4:** The booking module preserves a selected slot through phone login and email completion, then creates a pending hold after server and database validation. PostgreSQL exclusion constraints prevent overlapping counselor ranges including buffers and overlapping customer session ranges. A transaction-level lock serializes hold, reschedule, and availability changes; participant rows are rechecked and locked. Customer-owned confirmed appointments can be rescheduled once with at least 24 hours' notice. Phase 5 now supplies verified payment-backed confirmation through a service-only database operation.
 
-**Planned:** Notifications/Meet workflow, full customer portal, counselor workspace, messaging, notes, feedback, and broader administration remain unimplemented.
+**Phase 6:** Manual Meet links, participant access, transactional notification jobs, and local simulated email/WhatsApp delivery are implemented.
+
+**Planned:** External notification delivery, broader counselor workspace, messaging, notes, feedback, and broader administration remain unimplemented.
 
 ## Boundaries
 
@@ -35,8 +37,8 @@ The sequence below follows the requirements and is not a claim that the modules 
 3. Availability (implemented locally)
 4. Bookings (implemented locally)
 5. Payments (implemented locally with simulator; Razorpay Test Mode awaiting credentials)
-6. Meet and notifications
-7. Customer portal
+6. Meet and notifications (implemented locally; external delivery deferred)
+7. Customer portal (implemented locally)
 8. Counselor workspace
 9. Feedback and administration
 10. Hardening and launch
@@ -67,3 +69,17 @@ The simulator stores synthetic external state separately in `payment_simulator_o
 Customer refreshes are atomically limited to one per order per five seconds. Reconciliation claims up to 20 least-recently-checked orders and skips orders checked within a minute; per-order failures do not abort the batch. Admins see old unresolved exceptions separately from recent orders and can inspect unmatched event references. A deployment must schedule the authenticated POST endpoint; no hosted scheduler is running.
 
 Captured payments already marked for admin review retain that outcome on every replay; no later disappearance of a conflict silently resolves the exception. Unmatched signed event receipts can become linked only after canonical order recovery with the same digest; true identity conflicts remain rejected.
+
+## Phase 6: Meetings and notification outbox
+
+`src/modules/meetings/` owns canonical manual Meet assignment, audited revision history and participant-authorized reads. `src/modules/notifications/` owns local configuration, batch dispatch, provider boundary and admin controls. `MeetingProvider` describes the manual assignment boundary; Google Calendar/OAuth is deferred. The existing booking scheduling lock serializes meeting changes and simulated dispatch with confirmation/rescheduling.
+
+A booking trigger transactionally creates semantic-keyed notification jobs; schedule revisions supersede unfinished old work while preserving delivered history. Service-only RPCs claim bounded, expiring leases and atomically revalidate eligibility, write idempotent synthetic receipts and complete jobs. Per-job errors are isolated; retries are bounded. Reference-only jobs and separate private synthetic previews avoid contact/message data in audit logs. User-facing queries and actions check current canonical roles; RPCs/RLS enforce their own boundaries.
+
+The secret-authenticated worker endpoint bypasses session refresh and trusts no body-controlled recipient, price or app origin. Local simulation requires development/test plus loopback origins; disabled mode pauses processing and previews. No hosted scheduler, external transport or real-provider exactly-once promise exists.
+
+## Phase 7: Customer portal read boundary
+
+`src/modules/customer-portal/` owns query validation, read-model parsing, authenticated access and portal components. `/bookings` composes it; existing mutation RPCs remain authoritative. A security-definer customer-only read function joins only actor-owned bookings/orders and booking-linked payment/meeting data. One stable database timestamp drives all expiry, past/current and reschedule flags. It returns at most20 summaries and a lookahead indicator. No service-role access or new product table is introduced.
+
+An optional validated booking UUID resolves its owner-scoped rank and page within the same read snapshot. Confirmation from Holds and successful rescheduling use that locator to avoid losing old bookings behind newer history. Foreign locators reveal no foreign position/details. Offset navigation otherwise permits page membership to shift after new bookings.

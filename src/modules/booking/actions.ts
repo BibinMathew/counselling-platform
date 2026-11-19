@@ -39,7 +39,7 @@ export async function submitBooking(
     };
   revalidatePath(`/counselors/${parsed.data.counselor}`);
   revalidatePath("/bookings");
-  redirect("/bookings");
+  redirect(parsed.data.reschedule ? `/bookings?booking=${parsed.data.reschedule}` : "/bookings");
 }
 
 export async function saveHoldSettings(

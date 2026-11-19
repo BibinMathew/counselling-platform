@@ -22,10 +22,11 @@ async function CustomerContent() {
       <h1>Customer area</h1>
       <p>Signed in as {profile.preferred_name || profile.phone}.</p>
       <p>
-        <a href="/bookings">Your bookings</a>
+        <a href="/bookings">Your bookings and appointment history</a>
       </p>
       <p>
-        <Link href="/counselors">Find a counselor</Link>
+        <Link href="/counselors">Find a counselor</Link> for a new appointment. You can choose any
+        counselor.
       </p>
       <a href="/profile">Profile</a>
     </>

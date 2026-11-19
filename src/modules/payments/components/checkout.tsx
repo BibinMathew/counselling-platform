@@ -51,7 +51,9 @@ export function BookingPayment({
   enabled,
   reviewReason,
   paymentState,
+  confirmedHref,
 }: {
+  confirmedHref?: string;
   bookingId: string;
   amount: number;
   orderId?: string;
@@ -88,6 +90,7 @@ export function BookingPayment({
               : outcome,
     );
     if (outcome === "confirmed" || outcome === "admin_review") setCheckout(null);
+    if (outcome === "confirmed" && confirmedHref) router.replace(confirmedHref);
     router.refresh();
   };
   async function start() {

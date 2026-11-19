@@ -1,6 +1,6 @@
 # Counseling Platform
 
-A responsive counseling booking platform built as a modular Next.js monolith. Phases 0–5 implement foundation, identity, counselor catalog, availability, booking holds, and payment-backed confirmation locally. Contact email is captured once after phone OTP, without email verification or email OTP. Phase 5 includes a local payment simulator and Razorpay Test Mode adapter; real Razorpay testing awaits keys. Messaging, notes, and session operations remain unimplemented.
+A responsive counseling booking platform built as a modular Next.js monolith. Phases 0–7 implement foundation, identity, counselor catalog, availability, booking holds, payment-backed confirmation, manual Meet links, simulated notifications, and the customer portal locally. Contact email is captured once after phone OTP, without email verification or email OTP. Phase 5 includes a local payment simulator and Razorpay Test Mode adapter; real Razorpay testing awaits keys. Messaging, notes, feedback and broader session operations remain unimplemented.
 
 ## Requirements
 
@@ -223,3 +223,13 @@ pnpm payments:local reconcile
 ```
 
 The database test runner uses Docker directly; set `LOCAL_SUPABASE_RANCHER=1` in ignored local configuration for Rancher Desktop. The migration check creates and removes only a randomly named disposable database in the local container. Browser tests use temporary synthetic accounts. The existing customer OTP test changes the persistent customer profile, so exclude it when preserving demo data.
+
+## Phase 6: Meet and simulated notifications
+
+Admins attach unique manual Google Meet links at `/admin/appointments`; confirmed customers and assigned counselors see their authorized Join Meet links. `/admin/notifications` provides the local synthetic outbox, previews and retry controls. Booking confirmation/rescheduling atomically schedule updates and eligible 24-hour/1-hour reminders. No real messages are sent. See [local Meet and notification testing](docs/notifications-local-testing.md) for configuration, worker commands, recovery and launch limitations.
+
+## Phase 7: Customer portal
+
+`/bookings` now offers All, Upcoming, Past and Holds views with20-row pagination, authorized Meet/payment controls, stored payment totals and Book Again for eligible past counselors. Past appointments retain their actual status. Rebooking uses fresh current availability and checkout; successful Holds payment and rescheduling locate the exact booking even on a later page. See [customer portal testing](docs/customer-portal-local-testing.md).
+
+The landing page now adapts to the current server-verified account: signed-out visitors see phone sign-in; signed-in users see Sign out, their profile and links for their customer, counselor or admin role. Accounts missing their required contact email see Complete profile before role navigation. Protected pages independently enforce authorization.

@@ -192,12 +192,16 @@ test("customers can hold and reschedule without concurrent conflicts", async ({
     );
     await page.reload();
     await expect(page.getByText("Confirmed", { exact: true })).toBeVisible();
+    const rescheduleId = new URL(
+      (await page.getByRole("link", { name: "Reschedule" }).getAttribute("href"))!,
+      baseURL,
+    ).searchParams.get("reschedule");
     await page.getByRole("link", { name: "Reschedule" }).click({ timeout: 10000 });
     await page
       .locator(`.available-day li a[href*="${encodeURIComponent(replacementStart)}"]`)
       .click({ timeout: 10000 });
     await page.getByRole("button", { name: "Reschedule appointment" }).click({ timeout: 10000 });
-    await expect(page).toHaveURL(/\/bookings$/);
+    await expect(page).toHaveURL(`${baseURL}/bookings?booking=${rescheduleId}`);
     await expect(page.getByRole("link", { name: "Reschedule" })).toHaveCount(0);
   } finally {
     if (accounts.length > 0) {

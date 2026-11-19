@@ -40,7 +40,7 @@ jobs:
           import {appendFileSync} from 'node:fs';
           import {randomBytes} from 'node:crypto';
           const s=JSON.parse(execFileSync('supabase',['status','--output','json'],{encoding:'utf8',stdio:['ignore','pipe','ignore']}));
-          const values={NEXT_PUBLIC_SUPABASE_URL:s.API_URL,NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY:s.PUBLISHABLE_KEY,SUPABASE_SERVICE_ROLE_KEY:s.SERVICE_ROLE_KEY,PAYMENT_MODE:'simulator',PAYMENT_SIMULATOR_SECRET:randomBytes(32).toString('hex'),PAYMENT_RECONCILE_SECRET:randomBytes(32).toString('hex')};
+          const values={NEXT_PUBLIC_SUPABASE_URL:s.API_URL,NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY:s.PUBLISHABLE_KEY,SUPABASE_SERVICE_ROLE_KEY:s.SERVICE_ROLE_KEY,PAYMENT_MODE:'simulator',PAYMENT_SIMULATOR_SECRET:randomBytes(32).toString('hex'),PAYMENT_RECONCILE_SECRET:randomBytes(32).toString('hex'),NOTIFICATION_MODE:'simulator',NOTIFICATION_APP_ORIGIN:'http://127.0.0.1:3000',NOTIFICATION_WORKER_SECRET:randomBytes(32).toString('hex')};
           for(const [key,value] of Object.entries(values)) {
             if(!value) throw new Error('Missing local test configuration: '+key);
             if(key.includes('SECRET')||key==='SUPABASE_SERVICE_ROLE_KEY') console.log('::add-mask::'+value);
@@ -52,3 +52,4 @@ jobs:
       - run: pnpm build
         env:
           PAYMENT_MODE: disabled
+          NOTIFICATION_MODE: disabled

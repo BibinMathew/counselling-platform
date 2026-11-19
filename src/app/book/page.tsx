@@ -84,7 +84,7 @@ async function BookingContent({ searchParams }: { searchParams: Promise<Selectio
             reschedule={selected.reschedule}
           />
           {!selected.reschedule && (
-            <p>Payment is not available yet. A hold is not a confirmed appointment.</p>
+            <p>A hold reserves your time temporarily. Confirmation requires verified payment.</p>
           )}
         </>
       ) : (

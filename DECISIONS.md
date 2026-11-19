@@ -34,7 +34,7 @@ This log separates confirmed decisions from proposals and unresolved questions. 
 ## Proposed, Not Yet Implemented
 
 - Product-specific table shapes and status lifecycle are starting proposals only; design and review migrations when their modules are approved.
-- Manual Meet-link attachment is the MVP recommendation, but the account, ownership, and access process still needs confirmation.
+- Manual Meet-link attachment is implemented locally in Phase 6. Google account ownership and meeting admission/access procedures still need launch review.
 
 ## Unresolved
 
@@ -44,7 +44,7 @@ Do not silently decide these items in code. Resolve them before the feature or l
 - Minimum age, guardian consent, confidentiality, safeguarding, and emergency/crisis escalation for minors.
 - Counselor/customer no-show, late arrival, counselor cancellation, technical failure, refunds, disputes, and support SLAs.
 - Counselor payout cadence, tax/invoicing treatment, and reconciliation.
-- Whether to use manual Meet links or Google Calendar integration, and the authorized account/link-access policy.
+- Authorized Google account ownership and meeting admission/access policy. Manual links are approved for MVP; Calendar integration remains deferred.
 - Messaging lifetime, response expectations, emergency disclaimer, abuse reporting, moderation, and retention.
 - Session-note consent, access, retention, deletion, export, and incident response.
 - OTP, email, and WhatsApp vendors, verification/consent requirements, and operational costs.
@@ -74,3 +74,23 @@ The MVP stores one role in `profiles.role`. If multi-role accounts are later app
 - A five-second customer refresh claim and one-minute reconciliation leases bound provider polling. Deployments must configure their own authenticated reconciliation schedule.
 
 Captured payments already marked for admin review retain that outcome on every replay; no later disappearance of a conflict silently resolves the exception. Unmatched signed event receipts can become linked only after canonical order recovery with the same digest; true identity conflicts remain rejected.
+
+## Phase 6 decisions — approved 19 November 2026
+
+- User approved manual Meet links and local simulated email/WhatsApp, then approved the Phase 6 design and in-place native implementation with independent review.
+- Admin assigns unique canonical Meet URLs to future confirmed bookings. Historical links remain reserved to the same booking; rescheduling retains the link. Google API validation/creation is deferred.
+- Customer/assigned counselor see their authorized link. A persistent missing-link admin queue supplies local operational alerting.
+- Confirmation and rescheduling atomically enqueue deduplicated notifications; only future 24-hour/1-hour thresholds are scheduled. Delivered history persists and stale unfinished work is superseded.
+- Local receipts simulate email and WhatsApp only. Message bodies link to authenticated pages; destinations use synthetic profile references and avoid copying unverified contacts.
+- Default delivery mode is disabled; simulation requires development/test plus HTTP loopback origins. Secret-authenticated local polling is explicit, not a hosted cron.
+- Five automatic attempts use 1/5/15/60-minute backoff; audited manual retry retains the stable delivery identity. No external provider exactly-once guarantee is implied.
+- Live email verification/contact-change policy, WhatsApp consent/provider/template approval, Google account/access policy and real delivery remain launch decisions.
+
+## Phase 7 decisions — approved 19 November 2026
+
+- Expand existing `/bookings`; retain existing notification/checkout links and role guards. Native execution continues in the current workspace with independent review.
+- All/Upcoming/Past/Holds use20-row pagination and deterministic order. One database timestamp drives view/action flags. Past does not create Completed or No-show status.
+- Past-only Book Again navigates to current public availability; unavailable counselors fall back to discovery. New bookings always get current rules/prices and fresh checkout; existing paid appointments keep their counselor.
+- Keep optional legacy payment data absent instead of inventing past amounts. Confirmed payment evidence and captured admin exceptions outrank older/newer failed attempts.
+- Review refinement: optional owner-scoped booking locator resolves the actual page in one snapshot after Holds confirmation or rescheduling, preventing older appointments from disappearing on default page zero. This adds a read parameter and incremental migration, not a new mutation or privilege.
+- Past cards omit obsolete Join Meet affordances without changing the underlying authorized meeting access policy. Feedback, messaging/notes and launch policies remain deferred.

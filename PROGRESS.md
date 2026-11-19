@@ -2,7 +2,7 @@
 
 ## Current Status
 
-**Phase 5: implemented and verified locally; ready for human review.** The user approved the payment design, late-payment policy and retry behavior. Do not begin Phase 6 without approval.
+**Phase 7: implemented and verified locally; ready for human review.** The user approved the design and local simulated delivery on 19 November 2026, then selected implementation in this workspace with independent review. External email/WhatsApp and Google Calendar integration remain deferred.
 
 ## Implemented
 
@@ -52,7 +52,7 @@
 
 ## Planned, Not Implemented
 
-- Notifications/Meet workflow, full customer portal, counselor workspace, messaging, notes, feedback, broader admin operations, and launch hardening.
+- External notification delivery, broader counselor workspace, messaging, notes, feedback, broader admin operations, and launch hardening.
 - Production SMS/email providers, email verification/change flow, production/staging Supabase environments, age verification, and counselor credential-review workflow.
 
 ## Phase 0 Verification Record
@@ -160,7 +160,7 @@ On 2026-11-18, added database checks for anonymous and unauthorized access, inco
 
 ## Review Handoff
 
-Phase 5 design was approved by the user on 18 November 2026. Review the Phase 5 delivery and verification record before approving Phase 6.
+Phase 6 design and native in-place implementation were approved by the user on 19 November 2026. Review the Phase 6 delivery and verification record before approving Phase 7.
 
 ## Phase 5 implemented
 
@@ -197,3 +197,101 @@ The review also exposed weak origin-only ownership evidence and missing persiste
 The first interrupted browser run left one synthetic fixture; it and its four generated accounts were removed using an exact fixture ID plus identity/count guards. Final browser runs cleaned their own fixtures. Existing six demo accounts and four published demo counselor profiles were preserved.
 
 Known non-blocking output: existing Next.js image loading/performance hints and runner color-environment warnings. No real Razorpay checkout, dashboard setup, remote CI or hosted reconciliation schedule was claimed as verified.
+
+## Phase 6 implemented — 19 November 2026
+
+- Admins assign canonical unique manual Google Meet URLs to future confirmed bookings at `/admin/appointments`. Historical URL reservations prevent reuse across bookings. Missing links remain in a persistent admin queue.
+- Customers see their meeting link on `/bookings`; assigned counselors see a minimal upcoming-confirmed-appointments list on `/counselor`. Current canonical roles and ownership are checked independently in server logic and restricted database functions.
+- Confirmation/rescheduling transactionally enqueue revisioned customer emails, counselor WhatsApp alerts and future 24-hour/1-hour customer reminders. Duplicate payment observations do not create duplicate jobs. Rescheduling preserves delivered history and supersedes stale unfinished jobs.
+- Added service-only bounded leases, crash recovery, atomic synthetic receipt persistence, five-attempt backoff, audited manual retry and fail-next-attempt controls. Admin jobs are paged, with a failed-only recovery view; previews and application dispatch are strictly local simulation.
+- Added narrow `MeetingProvider`/`NotificationProvider` boundaries, separate worker secret, local run/poll commands, CI simulator configuration and operating documentation. External transports, Google APIs, clinical content and later phases are excluded.
+- Incrementally applied two migrations and recorded their local versions; preserved the existing database and demo records. No production service, real message or real customer data was used. No commit or push was made.
+
+### Phase 6 verification
+
+- `pnpm test`: passed; 9 files, 29 tests. New URL/config/worker/HTTP and review-fix tests were observed failing before their implementations.
+- `pnpm test:integration`: passed; 8 transactional SQL files, 256 assertions (53 Phase 6 assertions). Covers authorization, reminder boundaries, missing links, uniqueness, replay, rescheduling, leases, retry limits, revoked roles and started sessions; fixtures rolled back.
+- `pnpm test:migrations`: passed; all 19 migrations replayed in a disposable local database, then removed.
+- Safe complete browser suite: 6 tests passed, excluding the older OTP test that modifies the persistent demo customer's profile. Targeted Phase 6 browser journey passed again after review fixes, including a real held reschedule transaction versus a concurrent dispatch, concurrent claims, synthetic delivery/retry, participant isolation, rescheduling, 101 failed jobs across recovery pages and mobile overflow checks.
+- `NOTIFICATION_MODE=disabled PAYMENT_MODE=disabled NEXT_DIST_DIR=.next-phase6-build pnpm build`: passed; both new admin pages and worker endpoint included.
+- `pnpm lint` and `pnpm typecheck`: passed. Final formatting/diff and runtime readiness checks are recorded below.
+- Browser JS scan passed for configured server-secret values across 74 assets. Desktop meeting and mobile failure-recovery screenshots were inspected.
+- One independent reviewer found no Critical/Important security or state defects. Two completeness findings were corrected: older failed jobs are now accessible through paging/filtering, and manual meeting assignment implements the specified provider boundary. Both corrections had RED→GREEN unit tests and browser verification; no review finding is deferred.
+- Test setup corrections: ambiguous status locator; missing existing reschedule RPC argument; overlapping synthetic boundary slots; host clock about 280 ms ahead of VM, requiring due-job fixtures to use database time. No production timing rule was changed.
+
+### Operating limits
+
+Delivery receipts are explicitly synthetic and destinations use opaque profile references instead of retaining email/phone values. Future real adapters must resolve approved contact details and supply their own delivery semantics. Meet codes are structurally validated only; the app does not create or check a Google meeting. Authorized Google account/admission policy, email verification/change policy, WhatsApp consent/templates/providers, real delivery and hosted scheduling remain deferred. Remote CI has not been run. Broader customer portal, messaging, notes and feedback remain later phases.
+
+### Final local readiness
+
+- App homepage and counselor catalog: HTTP 200; local Supabase Auth: HTTP 200.
+- Authenticated notification worker endpoint: passed; local poller is running with five-second batches. Log: `.test-artifacts/notification-worker.log`.
+- Local ignored simulator configuration was added while preserving unrelated settings; worker secret was generated locally and was not printed.
+- Final demo counts match the pre-implementation baseline: 6 accounts, 4 counselors, 2 bookings. Synthetic browser fixtures were cleaned up.
+
+- `pnpm format:check` and `git diff --check`: passed. The completed plan scratch ledger was removed after transferring verification and decisions here.
+- Local runner verified with two actual batches and graceful SIGTERM; the main poller remains running. Final browser asset scan includes the newly generated worker secret and found no configured server-secret values.
+
+## Phase 6 targeted coverage and acceptance — 19 November 2026
+
+The five requested coverage gaps are closed in `notification_targeted.test.sql` and the worker HTTP unit suite. New assertions cover successful due/delayed reminder dispatch, all 1/5/15/60-minute retry intervals, five crashed leases and terminal exhaustion, unrelated counselor/customer/anonymous authorization denials, and a valid worker request failing safely with HTTP 503 before recovering on retry.
+
+- `pnpm test`: 9 files, 30 tests passed.
+- `pnpm test:integration`: 9 SQL files, 285 assertions passed (29 new assertions); rollback-only fixtures.
+- Complete safe browser suite: 6 passed after the checkout-copy correction. The old persistent-customer profile test remains excluded.
+- `pnpm lint`, `pnpm typecheck`, and isolated production build with both simulators disabled passed.
+- Agent-performed native Chrome UI acceptance passed confirmation, missing-link behavior, access denial, invalid/valid URL handling, duplicate save, simulated failure/retry/preview, customer Join Meet, one-time rescheduling and assigned counselor access. This is agent UI acceptance, not independent human sign-off.
+- UI acceptance exposed stale Phase 4 payment-unavailable guidance. A browser regression failed after waiting for the streamed form; corrected guidance then passed. No payment or booking policy changed.
+- One exact temporary booking and one temporary opening were cleaned up with explicit user approval and identity guards, preserving the three bookings that existed before this acceptance run.
+- Detailed checklist and evidence: `docs/phase-6-acceptance.md`.
+
+Phase 7 customer portal scoping has started; no Phase 7 product code is implemented yet. Recommended approach: extend existing `/bookings` with time-based appointment views and Book Again, preserving existing authorization, payment, rescheduling, notification links and manual Meet workflow. Feedback remains Phase 9; a past appointment must not be automatically labelled completed.
+
+Acceptance follow-up checks: `pnpm format:check` and `git diff --check` passed. Baseline identity comparison confirmed all three pre-existing booking IDs, six accounts and four counselors unchanged after approved cleanup. The local poller was restored and its log shows continuing successful batches. The checkout guidance correction is the only product-code change in this targeted-coverage follow-up; no Phase 7 implementation has started.
+
+## Phase 7 design — subsequently approved
+
+The user selected expansion of `/bookings` on 19 November 2026. Proposed design: `docs/superpowers/specs/2026-11-19-phase-7-customer-portal-design.md`. It covers All/Upcoming/Past/Holds, owner-only paginated history, database-time action eligibility, authorized Meet/payment controls, and past-appointment Book Again with current-counselor eligibility checks. A fresh builder check found no important unanswered planning questions. No Phase 7 application code, migration, dependency or product behavior has been changed. The remaining proposed defaults are explicitly identified in the design for approval.
+
+## Phase 7 implemented — 19 November 2026
+
+The user approved the `/bookings` design and continued native implementation in the current workspace. The portal now provides All/Upcoming/Past/Holds,20-row deterministic pagination, database-time expiry/current/past/rescheduling flags, snapshot-only historical amounts, authorized Meet controls, past-only Book Again and directory fallback for unpublished/revoked counselors. A new booking may use any eligible counselor without altering the counselor on an existing paid appointment. No Completed/No-show state, clinical data or external integration was added.
+
+Changes live in `src/modules/customer-portal/`, the composing bookings/customer pages, two incremental read-only migrations and a narrowly scoped payment/reschedule navigation refinement. `get_my_bookings` and all database mutation/eligibility rules remain unchanged. Portal reads use the authenticated customer client, explicit owner-scoped joins and no service-role privilege.
+
+### Phase 7 verification
+
+- `pnpm test`:10 files,34 tests passed. Portal models and booking-locator behavior were observed RED before their implementation.
+- `pnpm test:integration`:10 SQL files,325 assertions passed, including40 portal assertions. All fixtures rolled back. Covers role/owner boundaries, incomplete/revoked profiles, exact start/end/expiry/24-hour thresholds, legacy missing data, publication changes, payment precedence/snapshots and stable pages.
+- `pnpm test:migrations`: all21 migrations replayed in a disposable local database and removed. Both new migrations were applied incrementally to the existing local stack without resetting it.
+- Complete safe browser suite:7 passed after final review correction. The existing persistent-customer profile mutation test remains excluded. Portal journey covers>20 records, refresh/back/keyboard filters, stored vs absent past prices, Book Again with fresh current-price checkout, a second counselor, unavailable-counselor fallback, owner isolation, mobile layout, Meet links and one-time rescheduling.
+- Independent review found one Important navigation gap: paying an older hold could land on All page zero while its confirmation stayed on a later page. Reproducing locator unit/SQL checks failed before correction. The final browser explicitly pays a hold older than21 newer records and verifies its exact locator URL, resolved page2 and visible confirmation. Rescheduling that old appointment now uses the same locator. No review finding is deferred.
+- `pnpm lint`, `pnpm typecheck`, full unit tests and disabled-simulator isolated production build passed. Formatting/diff, browser-secret scan and final readiness checks are recorded below.
+- Native Chrome agent acceptance passed All/Upcoming/Past/Holds, past retaining Confirmed while omitting Join Meet, Book Again to current availability and back navigation. No records were created or edited in that native walkthrough. Mobile synthetic-history screenshot was inspected. This is agent acceptance, not independent human sign-off.
+- Test-harness corrections: standalone cleanup extraction initially caused a parse error; a broad Confirmed selector matched multiple legitimate history cards. Corrected the fixture/selector while retaining assertions. Existing booking regression now asserts the exact rescheduled booking URL instead of a bare route.
+
+### Phase 7 implementation refinement and limits
+
+The approved read contract gained an optional validated booking UUID locator and resolved page. This was necessary to satisfy confirmation visibility for old holds and rescheduling. The locator resolves only owned rows within the same response snapshot, and foreign IDs expose no foreign location/details. It required one additional incremental function migration; no new table, mutation or privilege was introduced. Ordinary offset pages can shift between requests after new bookings, as designed.
+
+External provider/launch limitations are unchanged. Real Razorpay delivery, real email/WhatsApp, hosted scheduling, clinical notes/messages, feedback and broader administration are not claimed. Remote CI was updated previously but has not been run for this uncommitted work. Next phases remain8 counselor workspace,9 feedback/admin and10 hardening/launch. Do not implement Phase8 before its scope/design review.
+
+Operating guide: `docs/customer-portal-local-testing.md`. No commit or push was made.
+
+### Phase 7 final local readiness
+
+- Final formatting and diff checks passed. Browser JS scan found no configured server-secret values in production/development browser assets.
+- Identity preservation check passed: all three original booking IDs, six accounts and four counselors are unchanged; temporary browser fixtures cleaned themselves up.
+- Homepage and local Supabase Auth return HTTP200. The local five-second notification poller was restored; log is `.test-artifacts/notification-worker.log`.
+- Work remains uncommitted in the user-selected workspace. No Phase8 behavior has been started.
+
+## Landing-page session and role navigation correction — 19 November 2026
+
+The homepage was static and always rendered phone sign-in. Replaced that link with a request-time identity component inside Suspense, using the existing verified-session/profile reader and sign-out server action. The public heading/discovery link remains available. Complete customers get customer area/bookings/profile links; counselors get assigned appointments/availability/profile; admins get administration/catalog/scheduling/meeting/notification/payment/profile links. Incomplete signed-in profiles get Complete profile and Sign out. No database, API, credential or role-policy change was needed.
+
+Five focused browser scenarios cover signed-out/customer/counselor/admin/incomplete-profile behavior, role-specific destination sets, forged user-metadata role ignored in favor of canonical database role, reload/back navigation, mobile layout, real sign-out and protected-route denial afterward. Before implementation the signed-out case passed and four signed-in cases failed. The first follow-up navigation check used a premature negative URL assertion; corrected it to wait for the exact destination and role heading before Back. Full results and final checks follow below.
+
+Landing navigation verification: all5 new browser scenarios passed (signed-out, customer, counselor, admin and incomplete-profile), with exact role link sets, forged metadata ignored, real sign-out, refresh/back navigation and mobile overflow checks. `pnpm lint`, `pnpm typecheck`, all34 unit tests and disabled-simulator isolated production build passed. Admin mobile screenshot was inspected. Existing homepage/OTP smoke results and final formatting checks follow. No production service, demo profile or booking was modified; generated test accounts were removed.
+
+The two existing homepage/OTP-attestation smoke tests also passed; the older persistent-customer profile mutation test was excluded as documented. Final `pnpm format:check` and `git diff --check` passed. Changes remain uncommitted.
