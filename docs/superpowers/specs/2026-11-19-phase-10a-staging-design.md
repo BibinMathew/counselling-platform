@@ -4,7 +4,7 @@ Status: approved and implemented locally; the user subsequently explicitly appro
 
 ## Intent and agreed inputs
 
-Provide three invited testers with the existing littlehello demonstration journeys online using fictional content, fixed test OTPs and fake payments. Git origin is https://github.com/BibinMathew/counselling-platform.git. Vercel account is bibinmathews-projects on Hobby. The dedicated staging Supabase endpoint is https://wajqgyhugvcorgxgrdlv.supabase.co (user reports ap-southeast-1 and no existing data). No domain is purchased; use a generated vercel.app preview URL. Real SMS, real notifications, Razorpay, live collection, messaging and customer launch are deferred. No paid upgrade or expenditure is authorized.
+Provide three invited testers with the existing littlehello demonstration journeys online using fictional content, fixed test OTPs and fake payments. Git origin is https://github.com/BibinMathew/counselling-platform.git. Vercel account is bibinmathews-projects, initially on Hobby; the user subsequently upgraded to Pro, verified for the approved hosted rollout. The dedicated staging Supabase endpoint is https://wajqgyhugvcorgxgrdlv.supabase.co (user reports ap-southeast-1; verified empty before provisioning, now populated with fictional test data). No domain is purchased; use a generated vercel.app preview URL. Real SMS, real notifications, Razorpay, live collection, messaging and customer launch are deferred. No additional paid upgrade or expenditure is authorized.
 
 Keep the existing modular monolith, UI, roles, booking/payment facts, encryption and authorization semantics. Preserve local data and local keys. This phase does not establish production privacy/age/clinical readiness.
 

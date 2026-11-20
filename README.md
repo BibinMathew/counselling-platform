@@ -246,7 +246,7 @@ After a confirmed appointment ends, its customer may submit one private 1–5 ra
 
 The app uses the approved crisp white/blue visual system across public discovery, identity and all role workspaces. A verified-role header, light desktop sidebar and accessible mobile Menu provide navigation; one global sign-in/sign-out control preserves booking return paths and dirty-draft confirmation. Public pages, appointment/date/status cards, calendars, operational metrics and forms share readable responsive styles. Existing rules/data/local-only gates remain unchanged. See [UI/manual acceptance](docs/ui-polish-local-testing.md). Phase10 hardening remains next; no launch is implied.
 
-Brand: **littlehello**. Intended public domain: **littlehello.in**. Domain connection and hosted configuration are pending Phase 10A.
+Brand: **littlehello**. Intended public domain: **littlehello.in**. Protected staging hosting is configured; the domain is not purchased or connected. Broader Phase 10 hardening and production launch remain incomplete; see [current progress](PROGRESS.md).
 
 ## Phase 10A: protected staging
 
