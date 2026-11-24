@@ -459,6 +459,14 @@ Four focused Playwright scenarios passed with synthetic customer, counselor and 
 
 The user approved preparing a Node 26.x staging policy for private team review, without connecting hosted services or changing DNS. Vercel documents major-only Node selection and potentially different build and function minor versions; the current exact Node engine and strict check therefore remain an unresolved deployment blocker. A proposed policy is documented in `DEVELOPMENT.md`, but the exact Node `26.13.1` and pnpm `12.21.0` pins, strict engine check, application code and CI are unchanged. The Node policy cannot be implemented under the current exact-version project rule without an approved rule change. The requirements also prohibit fictional counselor profiles in any hosted environment.
 
-No hosted staging project, deployment, DNS change, runtime compatibility test or production launch has occurred. Staging authentication, test data, reviewer access, ownership and deployment protection remain unresolved.
+No hosted staging project, deployment, DNS change, runtime compatibility test or production launch was performed during this preparation. Staging authentication, test data, reviewer access, ownership and deployment protection remain unresolved.
 
 Verification: `node --version` reported `v26.13.1`, `pnpm --version` reported `12.21.0`, and `git diff --check -- DEVELOPMENT.md README.md DECISIONS.md PROGRESS.md` passed. No application tests were run for this documentation-only preparation.
+
+## Node engine for staging — 24 November 2026
+
+The user approved broadening the Node package engine to `26.x` for Vercel compatibility; it applies to all installs, not only staging. Local development and CI retain the Node `26.13.1` and pnpm `12.21.0` pins, and strict engine checking remains enabled. Vercel's actual build and runtime versions and pnpm configuration still need verification during an approved staging deployment.
+
+The user reported that the earlier changes are on GitHub and that staging Supabase and Vercel resources already exist. Their configuration, contents, isolation and access protection have not been independently verified. No hosted service was contacted or changed in this iteration.
+
+Verification with Node `26.13.1` and pnpm `12.21.0`: `pnpm lint`, `pnpm typecheck`, `pnpm test` (52 passed, 1 opt-in skipped), a disabled-feature `pnpm build`, and `pnpm exec prettier --check package.json` passed. A local semver assertion accepted `26.13.1` and `26.14.0` and rejected `24.0.0` and `27.0.0`; this checks the range, not runtime compatibility. Database integration and browser tests were not run for this manifest-only behavior change.

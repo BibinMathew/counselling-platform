@@ -10,7 +10,7 @@ This log separates confirmed decisions from proposals and unresolved questions. 
 | Use Next.js App Router, React, and TypeScript                                              | Confirmed                 | Versions currently pinned in the project manifest/lockfile.                                        |
 | Use Supabase PostgreSQL and Auth                                                           | Confirmed for the product | Phase 1 phone OTP/profile/role foundations use local Supabase only.                                |
 | Keep trusted mutations, secrets, and privileged authorization server-side                  | Confirmed                 | RLS is an additional database boundary.                                                            |
-| Use Node.js `26.13.1` and pnpm `12.21.0` for this project setup                            | Approved for Phase 0      | Exact versions are pinned in `.node-version` and `package.json`.                                   |
+| Use Node.js `26.13.1` and pnpm `12.21.0` locally and in CI                                | Approved                  | `.node-version` and the package manager pin remain exact; the Node engine allows `26.x`.           |
 | Use Vitest, Playwright, and GitHub Actions checks                                          | Approved for Phase 0      | Unit test and homepage smoke-test scaffolds are in place.                                          |
 | Do not require Docker until local Supabase development is needed                           | Approved for Phase 0      | No local Supabase services are started.                                                            |
 | Preserve `PROJECT_REQUIREMENTS.txt` unchanged                                              | Superseded                 | The user explicitly requested the counselor discovery/category requirements be added on 20 Nov 2026. |
@@ -36,7 +36,7 @@ This log separates confirmed decisions from proposals and unresolved questions. 
 
 - On 22 November 2026 the user approved littlehello as the brand and chose the supplied landing-page direction, with the hero and booking steps before counselor profiles. This supersedes the earlier top-of-page placement and the earlier choice to retain the old name for this surface. The rest of the app is to be redesigned in later reviewed work. Live catalog data, local-only fictional previews, online-only sessions and existing booking policies remain unchanged.
 - The user approved a profile with editable preferred name, read-only phone and unverified contact email, account creation date, a customer bookings shortcut, and role information for staff only. Phone/email changes and account deletion are not implemented; production launch remains subject to identity, privacy and operational review.
-- For private team review, the user approved preparing a proposed Vercel Node 26.x staging policy, without deployment, hosted-service connections or DNS changes. The existing exact Node and pnpm project pins remain in force; relaxing the Node engine requirement and the exact-version project rule is proposed, not implemented or approved for rollout. Hosted fictional counselor profiles remain prohibited.
+- For private team review, the user approved allowing Node `26.x` in the package engine while retaining exact local and CI pins. This applies to all installs, not only staging. Hosted runtime compatibility remains unverified, and hosted fictional counselor profiles remain prohibited.
 
 ## Proposed, Not Yet Implemented
 

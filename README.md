@@ -79,7 +79,7 @@ pnpm build
 
 Playwright starts the app automatically. Its OTP journey requires local Supabase configuration; without it, only the homepage smoke test runs. CI starts Supabase locally and runs lint, typecheck, unit/RLS tests, E2E tests, and the production build.
 
-Private hosted staging is only a proposal; no deployment or DNS change has been approved. See the [staging policy](DEVELOPMENT.md#proposed-private-staging-policy) for the Node version conflict, isolation and access requirements, and unresolved deployment gates.
+The Node engine permits `26.x` for hosted staging, while local development and CI remain pinned to `26.13.1`. The user reports an existing staging deployment; its configuration and protection have not been verified. See the [staging policy](DEVELOPMENT.md#private-staging-policy) for isolation and access requirements and remaining deployment gates.
 
 ## Architecture
 

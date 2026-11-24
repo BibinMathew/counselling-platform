@@ -18,7 +18,7 @@
     "notifications:local": "node --env-file=.env.local scripts/notification-tools.mjs"
   },
   "engines": {
-    "node": "26.13.1"
+    "node": "26.x"
   },
   "dependencies": {
     "@supabase/ssr": "0.12.7",
