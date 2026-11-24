@@ -61,7 +61,7 @@ After the first successful phone OTP, accounts without a contact email must comp
 
 Visitors can browse `/counselors` and select available times on published profiles. Signed-in customers can create temporary holds and see them at `/bookings`; a hold becomes confirmed only after verified captured payment. Configure the local simulator or Razorpay Test Mode using [the payment testing guide](docs/payments-local-testing.md). Counselors manage their own weekly hours and date exceptions at `/counselor/availability`; admins manage schedules and hold settings from the admin area. Times use Asia/Kolkata. Admins manage profiles at `/admin/counselors`, using counselor-role account IDs and approved HTTPS image links. Unpublished profiles and linked account IDs are not public. External image hosts receive visitors' image requests.
 
-The public landing page uses the littlehello design and links to the existing counselor directory, category filters, booking information and FAQs. Counselor details remain sourced from the catalog; fictional profiles are restricted to the explicitly enabled local preview.
+The public landing page uses the littlehello design and links to the existing counselor directory, text-only category filters, booking information and FAQs. The category links include an All option to reset the filter. Counselor details remain sourced from the catalog; fictional profiles are restricted to the explicitly enabled local preview.
 
 The customer bookings and account profile pages also use the littlehello visual style. The profile shows an editable preferred name, read-only sign-in phone and unverified contact email, and account creation date. Customer profiles link to bookings; phone/email changes and account deletion are not implemented. Other workspaces retain their previous styling.
 
@@ -79,7 +79,7 @@ pnpm build
 
 Playwright starts the app automatically. Its OTP journey requires local Supabase configuration; without it, only the homepage smoke test runs. CI starts Supabase locally and runs lint, typecheck, unit/RLS tests, E2E tests, and the production build.
 
-The Node engine permits `26.x` for hosted staging, while local development and CI remain pinned to `26.13.1`. The user reports an existing staging deployment; its configuration and protection have not been verified. See the [staging policy](DEVELOPMENT.md#private-staging-policy) for isolation and access requirements and remaining deployment gates.
+The Node engine permits `26.x` for hosted staging, while local development and CI remain pinned to `26.13.1`. An isolated visual-only staging deployment exists at `staging.littlehello.in` with Vercel Authentication; Supabase email signup remains to be reviewed. See the [staging policy](DEVELOPMENT.md#private-staging-policy) for verified scope and remaining gates.
 
 ## Architecture
 

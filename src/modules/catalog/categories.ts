@@ -10,12 +10,11 @@ export type CounselorCategory = (typeof COUNSELOR_CATEGORY_VALUES)[number];
 export const COUNSELOR_CATEGORIES: {
   value: CounselorCategory;
   label: string;
-  icon: string;
 }[] = [
-  { value: "consultant_psychologist", label: "Consultant Psychologist", icon: "💬" },
-  { value: "clinical_psychologist", label: "Clinical Psychologist", icon: "🪑" },
-  { value: "sexual_health", label: "Sexual Health", icon: "✨" },
-  { value: "psychiatrist", label: "Psychiatrist", icon: "🌼" },
+  { value: "consultant_psychologist", label: "Consultant Psychologist" },
+  { value: "clinical_psychologist", label: "Clinical Psychologist" },
+  { value: "sexual_health", label: "Sexual Health" },
+  { value: "psychiatrist", label: "Psychiatrist" },
 ];
 
 export function isCounselorCategory(value: unknown): value is CounselorCategory {

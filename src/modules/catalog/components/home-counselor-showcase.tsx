@@ -42,15 +42,15 @@ export async function HomeCounselorShowcase({
           </p>
         )}
         <nav className="counselor-categories" aria-label="Counselor categories">
+          <Link href="/#counsellors" aria-current={selectedCategory === null ? "page" : undefined}>
+            All
+          </Link>
           {COUNSELOR_CATEGORIES.map((category) => (
             <Link
               href={`/?category=${category.value}#counsellors`}
               aria-current={selectedCategory === category.value ? "page" : undefined}
               key={category.value}
             >
-              <span className="category-icon" aria-hidden="true">
-                {category.icon}
-              </span>
               {category.label}
             </Link>
           ))}

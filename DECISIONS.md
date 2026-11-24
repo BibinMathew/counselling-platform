@@ -36,6 +36,7 @@ This log separates confirmed decisions from proposals and unresolved questions. 
 
 - On 22 November 2026 the user approved littlehello as the brand and chose the supplied landing-page direction, with the hero and booking steps before counselor profiles. This supersedes the earlier top-of-page placement and the earlier choice to retain the old name for this surface. The rest of the app is to be redesigned in later reviewed work. Live catalog data, local-only fictional previews, online-only sessions and existing booking policies remain unchanged.
 - The user approved a profile with editable preferred name, read-only phone and unverified contact email, account creation date, a customer bookings shortcut, and role information for staff only. Phone/email changes and account deletion are not implemented; production launch remains subject to identity, privacy and operational review.
+- The user approved replacing homepage category chips with text-only editorial navigation and an explicit All filter. The four approved categories, URL-based filtering and booking rules are unchanged.
 - For private team review, the user approved allowing Node `26.x` in the package engine while retaining exact local and CI pins. This applies to all installs, not only staging. Hosted runtime compatibility remains unverified, and hosted fictional counselor profiles remain prohibited.
 
 ## Proposed, Not Yet Implemented
