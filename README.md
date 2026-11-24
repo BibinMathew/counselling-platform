@@ -1,4 +1,4 @@
-# Counseling Platform
+# littlehello
 
 A responsive counseling booking platform built as a modular Next.js monolith. Phases 0–9 implement foundation, identity, counselor catalog, availability, booking holds, payment-backed confirmation, manual Meet links, simulated notifications, the customer portal, and the counselor workspace with encrypted private notes, private feedback and operational admin tools locally. Contact email is captured once after phone OTP, without email verification or email OTP. Phase 5 includes a local payment simulator and Razorpay Test Mode adapter; real Razorpay testing awaits keys. Messaging, message reporting and booking/financial remedies remain deferred. Phase 8 accepts fictional content only and stays disabled in production.
 
@@ -10,7 +10,7 @@ A responsive counseling booking platform built as a modular Next.js monolith. Ph
 - Git
 - Docker Desktop and Supabase CLI `3.2.0` for local Auth and RLS tests
 
-Docker is needed only for local Supabase services. The homepage, lint, typecheck, unit tests, and build do not require it; the catalog and identity workflows require Supabase.
+Docker is needed only for local Supabase services. Lint, typecheck, unit tests, and build do not require it; the homepage counselor showcase, catalog and identity workflows require configured Supabase, except for the local-only catalog preview.
 
 ## macOS setup
 
@@ -37,7 +37,7 @@ pnpm install --frozen-lockfile
 pnpm dev
 ```
 
-Open <http://localhost:3000>. The public page does not require Supabase configuration. For local sign-in and role routes, start Docker Desktop and the local Supabase stack:
+Open <http://localhost:3000>. The page shell may render without Supabase, but its counselor showcase requires configuration or the local-only preview described in [DEVELOPMENT.md](DEVELOPMENT.md). For local sign-in and role routes, start Docker Desktop and the local Supabase stack:
 
 `supabase db reset` destroys local database contents. Use `supabase migration up` instead when preserving existing local data.
 
@@ -61,6 +61,10 @@ After the first successful phone OTP, accounts without a contact email must comp
 
 Visitors can browse `/counselors` and select available times on published profiles. Signed-in customers can create temporary holds and see them at `/bookings`; a hold becomes confirmed only after verified captured payment. Configure the local simulator or Razorpay Test Mode using [the payment testing guide](docs/payments-local-testing.md). Counselors manage their own weekly hours and date exceptions at `/counselor/availability`; admins manage schedules and hold settings from the admin area. Times use Asia/Kolkata. Admins manage profiles at `/admin/counselors`, using counselor-role account IDs and approved HTTPS image links. Unpublished profiles and linked account IDs are not public. External image hosts receive visitors' image requests.
 
+The public landing page uses the littlehello design and links to the existing counselor directory, category filters, booking information and FAQs. Counselor details remain sourced from the catalog; fictional profiles are restricted to the explicitly enabled local preview.
+
+The customer bookings and account profile pages also use the littlehello visual style. The profile shows an editable preferred name, read-only sign-in phone and unverified contact email, and account creation date. Customer profiles link to bookings; phone/email changes and account deletion are not implemented. Other workspaces retain their previous styling.
+
 ## Checks
 
 ```sh
@@ -74,6 +78,8 @@ pnpm build
 ```
 
 Playwright starts the app automatically. Its OTP journey requires local Supabase configuration; without it, only the homepage smoke test runs. CI starts Supabase locally and runs lint, typecheck, unit/RLS tests, E2E tests, and the production build.
+
+Private hosted staging is only a proposal; no deployment or DNS change has been approved. See the [staging policy](DEVELOPMENT.md#proposed-private-staging-policy) for the Node version conflict, isolation and access requirements, and unresolved deployment gates.
 
 ## Architecture
 
@@ -244,4 +250,8 @@ After a confirmed appointment ends, its customer may submit one private 1–5 ra
 
 ## Phase 9.5 interface polish
 
-The app uses the approved crisp white/blue visual system across public discovery, identity and all role workspaces. A verified-role header, light desktop sidebar and accessible mobile Menu provide navigation; one global sign-in/sign-out control preserves booking return paths and dirty-draft confirmation. Public pages, appointment/date/status cards, calendars, operational metrics and forms share readable responsive styles. Existing rules/data/local-only gates remain unchanged. See [UI/manual acceptance](docs/ui-polish-local-testing.md). Phase10 hardening remains next; no launch is implied.
+The app uses the approved crisp white/blue visual system across public discovery, identity and all role workspaces. A verified-role header, light desktop sidebar and accessible mobile Menu provide navigation; one global sign-in/sign-out control preserves booking return paths and dirty-draft confirmation. Public pages, appointment/date/status cards, calendars, operational metrics and forms share readable responsive styles. Existing rules/data/local-only gates remain unchanged. See [UI/manual acceptance](docs/ui-polish-local-testing.md). The project owner reports Phase 10 hardening implemented; no production launch is implied while external-provider, privacy, clinical, legal, and operational gates remain unresolved.
+
+## Public counselor discovery
+
+The homepage presents published counselor profiles and browsable categories: Consultant Psychologist, Clinical Psychologist, Sexual Health, and Psychiatrist. Profiles include qualifications and experience, with no individual verification badge; qualifications must be checked operationally before publication. Admins assign one category per counselor. Local UX-only fictional profiles are opt-in, visibly labeled, and non-bookable; set `CATALOG_DEMO_MODE=local` with a loopback Supabase URL for local review. Never enable this mode on hosted environments.

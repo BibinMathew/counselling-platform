@@ -1,9 +1,10 @@
-import { CounselorPortrait } from "@/modules/catalog/components/counselor-portrait";
 import Link from "next/link";
 import { connection } from "next/server";
 import { Suspense } from "react";
 import { getPublicSessionSettings } from "@/modules/availability/server/availability";
 import { getPublicCounselors } from "@/modules/catalog/server/catalog";
+import { CounselorCard } from "@/modules/catalog/components/counselor-card";
+import { isCatalogDemoMode } from "@/modules/catalog/demo";
 import { getPaymentPrice } from "@/modules/payments/server";
 import { formatPrice } from "@/modules/payments/model";
 
@@ -21,36 +22,26 @@ export default function CounselorsPage() {
 
 async function Directory() {
   await connection();
-  const [counselors, settings, price] = await Promise.all([
-    getPublicCounselors(),
-    getPublicSessionSettings(),
-    getPaymentPrice(),
-  ]);
+  const counselors = await getPublicCounselors();
+  const demoMode = isCatalogDemoMode();
+  let sessionTerms: string | null = null;
+  if (!demoMode) {
+    const [settings, price] = await Promise.all([getPublicSessionSettings(), getPaymentPrice()]);
+    sessionTerms = `One-to-one sessions · ${settings.session_minutes} minutes · ${formatPrice(price.amount_paise)}`;
+  }
   return (
     <>
-      <p>
-        One-to-one sessions · {settings.session_minutes} minutes · {formatPrice(price.amount_paise)}
-      </p>
+      {sessionTerms ? (
+        <p>{sessionTerms}</p>
+      ) : (
+        <p className="catalog-demo-notice" role="note">
+          UX preview only: these profiles are fictional and do not represent real therapists.
+        </p>
+      )}
       {!counselors.length && <p>No counselor profiles are available yet.</p>}
       <div className="counselor-list">
         {counselors.map((counselor) => (
-          <article className="counselor-card" key={counselor.id}>
-            <CounselorPortrait src={counselor.photo_url} name={counselor.display_name} />
-            <div>
-              <h2>
-                <Link href={`/counselors/${counselor.id}`}>{counselor.display_name}</Link>
-              </h2>
-              <p>{counselor.qualifications}</p>
-              <p>{counselor.experience}</p>
-              <p>
-                <strong>Specializations:</strong> {counselor.specialties}
-              </p>
-              <p>
-                <strong>Languages:</strong> {counselor.languages}
-              </p>
-              <Link href={`/counselors/${counselor.id}`}>View profile</Link>
-            </div>
-          </article>
+          <CounselorCard counselor={counselor} key={counselor.id} />
         ))}
       </div>
     </>

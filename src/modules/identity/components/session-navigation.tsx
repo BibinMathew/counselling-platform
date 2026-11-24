@@ -20,7 +20,7 @@ export function NavigationFallback() {
   return (
     <header className="site-header">
       <Link href="/" className="site-brand">
-        Counseling Platform
+        littlehello
       </Link>
       <span className="muted">Loading account…</span>
     </header>

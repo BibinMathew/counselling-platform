@@ -4,7 +4,13 @@
 
 **Implemented:** Phase 0 foundation and Phase 1 Identity & Roles. Phone OTP sign-in uses Supabase Auth; a server-created profile has one canonical database role. A profile without contact email is gated after phone verification to a one-time email-completion page. The email is stored as unverified contact data and is not an authentication factor. Profile and role routes use server-side authorization, the Next.js 16 Proxy refreshes/verifies Supabase claims, and RLS protects profile access and updates. Customer, counselor, and admin routes are role-guarded; the admin route can grant roles through an audited database operation.
 
-**Phase 2:** The catalog module owns admin-managed counselor profiles and public directory/profile pages. Published entries are shown only while the linked account has the counselor role. A public database view exposes catalog fields without account IDs; admin mutations are protected by server guards and RLS and recorded in a catalog audit table. Photos use admin-approved HTTPS links; current pricing comes from `payment_settings`, defaulting to ₹699.
+**Phase 2:** The catalog module owns admin-managed counselor profiles and public directory/profile pages. The public home page and directory show published profiles with qualifications and a single controlled counselor category. Published entries are shown only while the linked account has the counselor role. A public database view exposes approved catalog fields without account IDs; admin mutations are protected by server guards and RLS and recorded in a catalog audit table. Credentials are checked operationally before publication; the UI has no per-profile verification badge. Photos use admin-approved HTTPS links; current pricing comes from `payment_settings`, defaulting to ₹699.
+
+Fictional counselor previews are available only through an explicit local-development mode. They are labeled as fictional, cannot be booked, and are not database seed data.
+
+The public landing page composes the existing catalog showcase and account shortcuts with the littlehello presentation. Shared navigation retains its role-aware links and authentication behavior; the landing page, customer bookings and account profile use the new visual treatment. No catalog, booking, authorization, or database contracts change.
+
+The account profile displays only the current server-authorized profile's preferred name, phone, contact email, creation date, and staff role where applicable. Phone and unverified email are read-only; the existing self-only preferred-name mutation and RLS remain the authorization boundary.
 
 **Phase 3:** The availability module provides counselor/admin calendars, weekly hours, date-specific openings and blocks, and admin scheduling settings. PostgreSQL generates non-overlapping candidate slots from merged openings, omits blocks, applies the notice/advance window, and returns UTC timestamps for display in Asia/Kolkata. Public slot access is limited to published profiles with a current counselor role. Server actions and database functions verify the actor; schedule changes are audited.
 
@@ -44,7 +50,7 @@ The sequence below follows the requirements and is not a claim that the modules 
 8. Counselor workspace and private notes (implemented locally; messaging/reporting deferred)
 9. Feedback and administration (local private feedback, dashboard and case tracking)
 
-Phase 9.5 is UI/UX polish (implemented locally). Phase 10 is hardening and launch (not started).
+Phase 9.5 UI/UX polish is implemented locally. The project owner reports Phase 10 hardening is implemented; production launch remains subject to the unresolved external-provider, privacy, clinical, legal, and operational gates below.
 
 If multiple simultaneous roles are needed later, replace the single enum column with a `profile_roles(profile_id, role)` membership table, backfill each current role, update server guards and RLS helpers to check membership, and migrate role RPCs/tests before removing `profiles.role`. This is a future migration, not current behavior.
 

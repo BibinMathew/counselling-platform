@@ -18,6 +18,10 @@ Sessions | One-to-one via Google Meet; no embedded Agora calling initially
 
 Discovery | Customers directly select counselors; no matching algorithm
 
+Counselor categories | Each counselor has exactly one public category: Consultant Psychologist, Clinical Psychologist, Sexual Health, or Psychiatrist
+
+Credential claims | Verify every counselor's qualifications operationally before publication; do not show a per-profile verification badge
+
 Duration | 45-minute session + 15-minute buffer; configurable
 
 Price | ₹699 per session, uniform across counselors; configurable
@@ -74,7 +78,11 @@ Admin: manage counselors, pricing, scheduling configuration, bookings, exception
 
 Home page with clear service description, how it works, counselor directory, pricing, FAQs, privacy and support links.
 
-Counselor cards/profile pages: preferred display name, photo, qualifications, experience, specializations, languages, 45-minute session, ₹699 price, available slots.
+Show published counselor profiles on the landing page before sign-in. Provide category browsing for Consultant Psychologist, Clinical Psychologist, Sexual Health, and Psychiatrist; each profile has exactly one category. Visitors can open a profile or browse the full directory.
+
+Counselor cards/profile pages: preferred display name, photo, qualifications, experience, specializations, languages, 45-minute session, ₹699 price, available slots. Verify qualifications operationally before publication; do not show a per-profile verification badge.
+
+Fictional UX profiles may be enabled only in local development, must be visibly labeled as fictional samples, and must never be seeded into hosted environments.
 
 Responsive and accessible UI; timezone shown as Asia/Kolkata initially.
 
@@ -220,7 +228,7 @@ Phase | Module | Deliverable / exit criteria
 
 profiles(id, auth_user_id, role, display_name, phone, email, created_at)
 
-counselors(id, profile_id, bio, qualifications, languages, specialties, photo_path, active)
+counselors(id, profile_id, category, bio, qualifications, languages, specialties, photo_path, active)
 
 availability_rules(id, counselor_id, weekday, start_time, end_time, timezone)
 

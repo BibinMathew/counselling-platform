@@ -7,7 +7,10 @@ test("public polish has a single shell, hero and accessible narrow layouts", asy
   await page.goto("/");
   await expect(page.getByRole("banner")).toBeVisible();
   await expect(
-    page.getByRole("heading", { name: "Space to pause. Someone to talk to.", exact: true }),
+    page.getByRole("heading", {
+      name: "A little hello can be the start of feeling better.",
+      exact: true,
+    }),
   ).toBeVisible();
   await expect(page.getByRole("main")).toHaveCount(1);
   await expect(page.getByRole("main")).toHaveAttribute("id", "main-content");
@@ -23,7 +26,10 @@ test("public polish has a single shell, hero and accessible narrow layouts", asy
   await page.getByRole("link", { name: "Skip to main content", exact: true }).focus();
   await page.keyboard.press("Enter");
   const hero = await page
-    .getByRole("heading", { name: "Space to pause. Someone to talk to.", exact: true })
+    .getByRole("heading", {
+      name: "A little hello can be the start of feeling better.",
+      exact: true,
+    })
     .boundingBox();
   const mobileHeader = await page.getByRole("banner").boundingBox();
   expect(hero!.y).toBeGreaterThanOrEqual(mobileHeader!.y + mobileHeader!.height);

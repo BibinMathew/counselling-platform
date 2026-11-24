@@ -10,8 +10,8 @@ update public.profiles set email='synthetic@example.test' where id::text like 'f
 update public.profiles set role='admin' where id='f8000000-0000-4000-8000-000000000001';
 update public.profiles set role='counselor' where id='f8000000-0000-4000-8000-000000000002';
 select set_config('request.jwt.claim.sub','f8000000-0000-4000-8000-000000000001',true);
-insert into public.counselors(id,profile_id,display_name,bio,qualifications,experience,specialties,languages,photo_url,published)
-values('f8100000-0000-4000-8000-000000000001','f8000000-0000-4000-8000-000000000002','Workspace Fixture','Test','Test','Test','Test','English','https://example.test/a.png',true);
+insert into public.counselors(id,profile_id,display_name,bio,qualifications,experience,category,specialties,languages,photo_url,published)
+values('f8100000-0000-4000-8000-000000000001','f8000000-0000-4000-8000-000000000002','Workspace Fixture','Test','Test','Test','consultant_psychologist','Test','English','https://example.test/a.png',true);
 create temp table nf(n integer primary key,b uuid);
 grant all on nf to authenticated;
 create function pg_temp.make_booking(n integer,t timestamptz default null,s text default 'confirmed') returns uuid language plpgsql as $$

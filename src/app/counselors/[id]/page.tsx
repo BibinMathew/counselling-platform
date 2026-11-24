@@ -11,6 +11,8 @@ import {
 import { getPublicCounselor } from "@/modules/catalog/server/catalog";
 import { getPaymentPrice } from "@/modules/payments/server";
 import { formatPrice } from "@/modules/payments/model";
+import { isCatalogDemoMode } from "@/modules/catalog/demo";
+import { getCounselorCategoryLabel } from "@/modules/catalog/categories";
 
 export default function CounselorPage({
   params,
@@ -45,6 +47,34 @@ async function CounselorContent({
   if (!z.string().uuid().safeParse(id).success) notFound();
   const counselor = await getPublicCounselor(id);
   if (!counselor) notFound();
+  if (isCatalogDemoMode()) {
+    return (
+      <>
+        <p className="catalog-demo-notice" role="note">
+          Fictional UX sample only. This is not a real therapist and bookings are unavailable.
+        </p>
+        <article className="counselor-detail">
+          <CounselorPortrait src={counselor.photo_url} name={counselor.display_name} />
+          <div>
+            <p className="counselor-card-category">
+              {getCounselorCategoryLabel(counselor.category)}
+            </p>
+            <h1>{counselor.display_name}</h1>
+            <p>{counselor.qualifications}</p>
+            <p>{counselor.experience}</p>
+          </div>
+          <div className="counselor-about">
+            <h2>About</h2>
+            <p>{counselor.bio}</p>
+            <h2>Areas of practice</h2>
+            <p>{counselor.specialties}</p>
+            <h2>Languages</h2>
+            <p>{counselor.languages}</p>
+          </div>
+        </article>
+      </>
+    );
+  }
   const [slots, settings, price] = await Promise.all([
     getPublicAvailability(id),
     getPublicSessionSettings(),
@@ -68,6 +98,7 @@ async function CounselorContent({
     <article className="counselor-detail">
       <CounselorPortrait src={counselor.photo_url} name={counselor.display_name} />
       <div>
+        <p className="counselor-card-category">{getCounselorCategoryLabel(counselor.category)}</p>
         <h1>{counselor.display_name}</h1>
         <p>{counselor.qualifications}</p>
         <p>{counselor.experience}</p>
@@ -82,7 +113,7 @@ async function CounselorContent({
         <p>{counselor.specialties}</p>
         <h2>Languages</h2>
         <p>{counselor.languages}</p>
-        <h2>Available times</h2>
+        <h2 id="available-times">Available times</h2>
         <p>Asia/Kolkata</p>
         {slots.length === 0 && <p>No available times in the current booking window.</p>}
         {[...groupedSlots].map(([date, daySlots]) => (

@@ -9,7 +9,7 @@ export function ProfileForm({ preferredName }: { preferredName: string }) {
   const [state, action, pending] = useActionState(updateOwnProfile, initialState);
 
   return (
-    <form action={action}>
+    <form action={action} className="profile-form">
       <label htmlFor="preferredName">Preferred name</label>
       <input
         id="preferredName"

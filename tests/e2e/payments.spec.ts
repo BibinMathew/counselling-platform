@@ -37,8 +37,8 @@ test("simulator checkout retries, verifies, reconciles and protects payment owne
       update public.profiles set role='counselor',email='counselor@example.test' where id='${counselorUser.id}';
       update public.profiles set email='customer@example.test' where id in ('${customer.id}','${other.id}');
       perform set_config('request.jwt.claim.sub','${admin.id}',true);
-      insert into public.counselors(id,profile_id,display_name,bio,qualifications,experience,specialties,languages,photo_url,published)
-      values('${counselor}','${counselorUser.id}','Payment Browser Fixture','Test','Test','Test','Stress','English','https://example.test/image.png',true);
+      insert into public.counselors(id,profile_id,display_name,bio,qualifications,experience,category,specialties,languages,photo_url,published)
+      values('${counselor}','${counselorUser.id}','Payment Browser Fixture','Test','Test','Test','consultant_psychologist','Stress','English','https://example.test/image.png',true);
       perform public.save_availability_exception('${counselor}',null,(now() at time zone 'Asia/Kolkata')::date+2,'opening',false,'09:00','18:00');
     end $$;`);
     const signIn = async (target: typeof page, user: { phone: string }) => {

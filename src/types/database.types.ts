@@ -149,6 +149,7 @@ export type Database = {
           bio: string;
           qualifications: string;
           experience: string;
+          category: string;
           specialties: string;
           languages: string;
           photo_url: string;
@@ -163,6 +164,7 @@ export type Database = {
           bio: string;
           qualifications: string;
           experience: string;
+          category: string;
           specialties: string;
           languages: string;
           photo_url: string;
@@ -173,6 +175,7 @@ export type Database = {
           bio?: string;
           qualifications?: string;
           experience?: string;
+          category?: string;
           specialties?: string;
           languages?: string;
           photo_url?: string;
@@ -217,6 +220,7 @@ export type Database = {
           specialties: string;
           languages: string;
           photo_url: string;
+          category: string;
         };
         Relationships: [];
       };

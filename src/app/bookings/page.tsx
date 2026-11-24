@@ -9,7 +9,7 @@ export default function BookingsPage({
   searchParams: Promise<PortalQueryInput>;
 }) {
   return (
-    <div className="page-main catalog-page booking-page">
+    <div className="page-main catalog-page booking-page customer-bookings-page">
       <Link href="/customer">Customer area</Link>
       <h1>Your bookings</h1>
       <Suspense fallback={<p>Loading bookings...</p>}>

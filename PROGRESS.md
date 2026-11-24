@@ -2,7 +2,7 @@
 
 ## Current Status
 
-**Phase 7: implemented and verified locally; ready for human review.** The user approved the design and local simulated delivery on 19 November 2026, then selected implementation in this workspace with independent review. External email/WhatsApp and Google Calendar integration remain deferred.
+**Phase 10: reported implemented by the project owner.** The detailed historical verification record below currently ends at Phase 9.5, so it is not evidence of Phase 10 verification. Production launch remains subject to external-provider, privacy, clinical, legal, and operational gates.
 
 ## Implemented
 
@@ -50,10 +50,11 @@
 - Confirmed appointments can be rescheduled once, with the same counselor, at least 24 hours before the original start; only synthetic local tests create confirmed fixtures in Phase 4.
 - Booking lifecycle changes are audited; expired holds are hidden immediately and transitioned during a later successful booking operation.
 
-## Planned, Not Implemented
+## Remaining Deferred Work and Launch Gates
 
-- External notification delivery, broader counselor workspace, messaging, notes, feedback, broader admin operations, and launch hardening.
-- Production SMS/email providers, email verification/change flow, production/staging Supabase environments, age verification, and counselor credential-review workflow.
+- External notification delivery, customer-counselor messaging and message reporting.
+- Production SMS/email providers, email verification/change flow, age verification and guardian safeguards, clinical/privacy/legal review, and operational launch readiness.
+- Counselor credentials must be operationally verified before publication; an in-app credential review workflow is not part of this catalog UX change.
 
 ## Phase 0 Verification Record
 
@@ -415,3 +416,49 @@ Final Phase9.5 closure (19 November 2026):
 - Configured server secrets (including individual private-content keyring values) and private synthetic content markers were absent from279 generated browser JavaScript files. Exact original database snapshot and private-content fingerprints still match after final fixtures cleaned themselves up.
 - Owned notification poller31238 resumed and verified running; local app3000 and Auth54321 each returned HTTP200. Automatic Next-generated test/build include paths were removed from tsconfig; no intended configuration was changed. Independent review is complete with both Minor findings fixed and no unresolved finding. Formatting and whitespace checks are recorded in the local ledger.
 - Manual agent acceptance is complete within the local synthetic scope. Existing user content was preserved; no production service, commit, deployment or Phase10 implementation was performed. The manual guide is `docs/ui-polish-local-testing.md`.
+
+## Counselor discovery UX — 20 November 2026
+
+The user approved showing published counselor profiles at the top of the landing page, with exactly one category per profile: Consultant Psychologist, Clinical Psychologist, Sexual Health, or Psychiatrist. Existing catalog profiles are mapped to Consultant Psychologist per the user's instruction. Credential verification remains an operational prerequisite for publication; the UI has no per-profile badge or review workflow.
+
+Local-only, visibly labeled fictional profile fixtures support layout review. They do not seed Supabase, expose booking actions, or run with hosted Supabase URLs. The new category migration updates the public view and admin catalog; category filtering, public profile navigation and mobile layout have focused unit/browser coverage.
+
+Verification completed: `pnpm typecheck`, `pnpm lint`, the focused catalog Vitest tests (3 passed), the focused mobile catalog Playwright test (1 passed), production `pnpm build` with demo mode disabled, `pnpm test:migrations` (all 26 migrations replayed in the script's isolated disposable database), and `git diff --check`. The local homepage returned HTTP 200. The full test suite and SQL integration suite were not run. No hosted migration, deployment, database seed, or commit was performed. The linked local database was behind several repository migrations, so `supabase migration up` was not run to avoid applying unrelated pending migrations.
+
+## littlehello landing-page redesign — 22 November 2026
+
+The user approved the supplied landing-page direction, the littlehello name, and the hero-first section order in place of the earlier profiles-first layout. The homepage now uses the supplied hero image and green visual direction, with how-it-works, the existing live catalog and category filters, FAQs and account shortcuts. Shared header/footer branding and metadata use the new name; role-aware navigation and booking behavior are unchanged. Prototype sample profiles, prices, in-person service claims and unverified stories were not imported. The remainder of the app has not been redesigned and requires a separate reviewed iteration.
+
+Verification with Node 26.13.1 and pnpm 12.21.0: `pnpm lint`, `pnpm test` (50 passed, 1 opt-in skipped), `pnpm typecheck`, `pnpm build`, targeted Prettier check and `git diff --check` passed. Five focused Playwright tests passed with local fictional catalog mode, covering the landing page, navigation, FAQ disclosure, mobile overflow, category filtering and non-bookable demo profiles. An initial run exposed mobile overflow and was fixed; an initial concurrent typecheck encountered temporary Next.js test-generated type paths, and passed when rerun after browser testing. No database or authenticated booking journey was exercised for this presentation-only iteration; no migration, production service, real customer data, deployment or commit was used.
+
+On 22 November 2026 the user requested a running preview and fresh tests. The app was started on port 3140 in local fictional catalog mode; HTTP returned 200. `pnpm lint`, `pnpm test` (50 passed, 1 skipped) and five focused Playwright landing, navigation and category tests passed against that preview. Authenticated booking and database integration tests were not run; the preview has no authentication configuration.
+
+The user subsequently requested that the homepage counselor showcase follow the supplied prototype more closely. The section now has a side introduction and compact responsive profile cards, with category filters retained. Real cards show current session facts and link to available times on the profile; fictional demo cards remain clearly labeled and non-bookable. Three illustrative portraits from the supplied design are used only by local demo profiles; the fourth keeps the existing portrait fallback. The full directory's cards and booking rules are unchanged.
+
+Verification: `pnpm lint`, `pnpm test` (52 passed, 1 opt-in skipped), `pnpm typecheck`, `pnpm build`, and five focused Playwright tests passed. Browser checks cover the three-column desktop and single-column mobile card layouts, demo labels, category filtering and profile navigation; unit tests cover live-card booking links and fictional-card restrictions. The stale preview stylesheet was refreshed by restarting the local server. Database integration and authenticated booking tests were not run; no database, provider or production service was changed.
+
+On 22 November 2026 the preview was restarted with the running local Supabase publishable key after a missing-key login error. An isolated browser successfully requested and verified a fixed local test OTP and reached the profile page without editing profile data. The preview retains local fictional, non-bookable counselor profiles; no production service was connected.
+
+On 22 November 2026 the user reported that appointments could not load and approved applying pending local migrations. A private full database archive was created in the session files with mode 0600 and its archive listing verified. Eleven pending migrations applied, but the category migration failed on an existing counselor because its update invoked the audit trigger without an authenticated actor. A populated-catalog isolated replay reproduced the failure; the migration now backfills through a temporary column default without firing update triggers or inventing an actor. A second isolated replay passed.
+
+The corrected migration was applied locally. Integration checks exposed two category-migration regressions: the public view required a function denied to anonymous users, and authenticated admins lacked the category column update grant. Two follow-up migrations restored the role-filtering join and the admin-governed column grant. All 28 migrations replayed in isolation and are applied locally. `pnpm test:integration` passed 448 transactional assertions, including anonymous catalog access, category validation/update/audit and 40 customer portal assertions; `pnpm lint`, `pnpm typecheck` and `pnpm test` passed (52 unit tests, 1 opt-in skipped). An isolated browser signed in using local OTP and loaded `/bookings` and the Past filter. No local database reset, production connection or commit occurred. The archive listing was verified, but a full restore drill was not performed.
+
+## Customer bookings visual refresh — 22 November 2026
+
+The user approved redesigning bookings first, with the profile page deferred to a separate review. The customer bookings page and its sidebar now use the landing page's sage and green palette, serif title and rounded appointment cards. Existing filters, status text, payment, rescheduling, feedback and authorization behavior were not changed; there are no database or API changes.
+
+Verification: `pnpm lint`, `pnpm typecheck`, `pnpm build`, `pnpm test` (52 passed, 1 skipped) and a focused Playwright test passed. The browser test used isolated synthetic users and an expired hold; it checked card rendering, keyboard-operated filters, desktop and 390/320px layouts, no horizontal overflow and scope isolation from the profile sidebar. Synthetic users and fixtures were removed and their cleanup verified. The preview was restarted to refresh a stale stylesheet. No payment action, database integration suite, production service or commit was used in this presentation-only iteration.
+
+## Profile presentation — 22 November 2026
+
+The user approved showing an editable preferred name, read-only login phone and explicitly unverified contact email, account creation date, staff-only role and a customer bookings shortcut. The profile and sidebar now match the landing-page palette and card style. Preferred-name validation and the self-only server/RLS mutation remain in place; no database or API change, contact editing, account deletion, or production-provider connection was introduced. The profile is not production launch approval: identity, privacy, support, verification, contact change and deletion policies remain open.
+
+Four focused Playwright scenarios passed with synthetic customer, counselor and admin accounts: role-specific content, read-only contacts, validation, keyboard save, persisted preferred name, bookings navigation and 1280/390/320px overflow checks; the bookings regression also passed. Synthetic account cleanup was verified. The existing identity RLS SQL suite passed 27 transactional assertions. `pnpm lint`, `pnpm typecheck`, `pnpm build`, and `pnpm test` passed (52 passed, 1 skipped). The preview was restarted with local authentication and returned HTTP 200.
+
+## Private staging policy preparation
+
+The user approved preparing a Node 26.x staging policy for private team review, without connecting hosted services or changing DNS. Vercel documents major-only Node selection and potentially different build and function minor versions; the current exact Node engine and strict check therefore remain an unresolved deployment blocker. A proposed policy is documented in `DEVELOPMENT.md`, but the exact Node `26.13.1` and pnpm `12.21.0` pins, strict engine check, application code and CI are unchanged. The Node policy cannot be implemented under the current exact-version project rule without an approved rule change. The requirements also prohibit fictional counselor profiles in any hosted environment.
+
+No hosted staging project, deployment, DNS change, runtime compatibility test or production launch has occurred. Staging authentication, test data, reviewer access, ownership and deployment protection remain unresolved.
+
+Verification: `node --version` reported `v26.13.1`, `pnpm --version` reported `12.21.0`, and `git diff --check -- DEVELOPMENT.md README.md DECISIONS.md PROGRESS.md` passed. No application tests were run for this documentation-only preparation.

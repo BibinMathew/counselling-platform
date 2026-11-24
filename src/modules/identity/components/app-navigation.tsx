@@ -73,20 +73,22 @@ export function AppNavigation({
       <header ref={header} className="site-header">
         <Link href="/" className="site-brand">
           <span className="brand-mark" aria-hidden="true">
-            <svg viewBox="0 0 28 28" fill="none">
+            <svg viewBox="0 0 48 42" fill="none">
+              <circle cx="16" cy="7" r="5" fill="#91b78d" />
+              <circle cx="34" cy="11" r="5" fill="#438f84" />
               <path
-                d="M20 7a9 9 0 1 0 0 14M21 7h-6v6"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
+                d="M24 39C2 40 0 19 10 18c8-3 13 7 14 10 3-9 13-13 18-7 9 11-8 21-18 18Z"
+                fill="#579c88"
               />
-              <circle cx="21" cy="19" r="3" fill="currentColor" />
+              <path d="M24 39C4 36 0 20 10 18c8-2 11 6 14 10 2 4 1 8 0 11Z" fill="#a3bf8d" />
             </svg>
           </span>
-          <span>Counseling Platform</span>
+          <span>littlehello</span>
         </Link>
         <nav aria-label="Primary navigation" className="header-links">
           <Link href="/counselors">Counselors</Link>
+          <Link href="/#how">How it works</Link>
+          <Link href="/#faq">FAQs</Link>
           {role ? (
             <>
               {complete ? (
@@ -122,7 +124,7 @@ export function AppNavigation({
       </header>
       {workspace && (
         <aside
-          className="workspace-sidebar"
+          className={`workspace-sidebar${path === "/bookings" ? " bookings-sidebar" : path === "/profile" ? " profile-sidebar" : ""}`}
           onKeyDown={(e) => {
             if (e.key === "Escape" && open) {
               e.preventDefault();

@@ -13,8 +13,8 @@ update public.profiles set role = 'counselor', email = 'counselor@example.test' 
 update public.profiles set email = 'customer@example.test' where id in ('88888888-8888-4888-8888-888888888888', '99999999-9999-4999-8999-999999999999');
 set local role authenticated;
 select set_config('request.jwt.claim.sub', '66666666-6666-4666-8666-666666666666', true);
-insert into public.counselors (id, profile_id, display_name, bio, qualifications, experience, specialties, languages, photo_url, published)
-values ('aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee', '77777777-7777-4777-8777-777777777777', 'Booking Test', 'Bio', 'Degree', 'Experience', 'Specialty', 'English', 'https://example.test/photo.jpg', true);
+insert into public.counselors (id, profile_id, display_name, bio, qualifications, experience, category, specialties, languages, photo_url, published)
+values ('aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee', '77777777-7777-4777-8777-777777777777', 'Booking Test', 'Bio', 'Degree', 'Experience', 'consultant_psychologist', 'Specialty', 'English', 'https://example.test/photo.jpg', true);
 select lives_ok($$select public.set_booking_hold_minutes(5)$$, 'admin can configure hold duration');
 select throws_ok($$select public.set_booking_hold_minutes(0)$$, '23514', null, 'zero-minute holds are rejected');
 select throws_ok($$select public.set_booking_hold_minutes(61)$$, '23514', null, 'hold duration above 60 minutes is rejected');

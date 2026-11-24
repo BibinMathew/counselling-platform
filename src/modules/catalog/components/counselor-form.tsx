@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { deleteCounselor, saveCounselor, type CatalogActionState } from "@/modules/catalog/actions";
+import { COUNSELOR_CATEGORIES } from "@/modules/catalog/categories";
 import type { Database } from "@/types/database.types";
 
 type Counselor = Database["public"]["Tables"]["counselors"]["Row"];
@@ -46,6 +47,19 @@ export function CounselorForm({ counselor }: { counselor?: Counselor }) {
           />
         </label>
         <label>
+          Category
+          <select name="category" defaultValue={counselor?.category ?? ""} required>
+            <option value="" disabled>
+              Select a category
+            </option>
+            {COUNSELOR_CATEGORIES.map((category) => (
+              <option value={category.value} key={category.value}>
+                {category.label}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label>
           Experience
           <input name="experience" defaultValue={counselor?.experience} maxLength={500} required />
         </label>
@@ -75,6 +89,9 @@ export function CounselorForm({ counselor }: { counselor?: Counselor }) {
         <label className="catalog-checkbox">
           <input type="checkbox" name="published" defaultChecked={counselor?.published} /> Published
         </label>
+        <p className="muted">
+          Publish only after the counselor’s qualifications have been verified.
+        </p>
         <button type="submit" disabled={pending}>
           {pending ? "Saving..." : "Save profile"}
         </button>

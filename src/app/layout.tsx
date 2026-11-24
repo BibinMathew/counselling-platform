@@ -9,8 +9,8 @@ import type { ReactNode } from "react";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Counseling Platform",
-  description: "A counseling appointment platform.",
+  title: "littlehello | Mental health counseling",
+  description: "Find a counselor and book a one-to-one online session.",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
@@ -27,7 +27,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           {children}
         </main>
         <footer className="site-footer">
-          <span>Counseling Platform</span>
+          <span>littlehello</span>
           <span>One-to-one sessions online · Asia/Kolkata</span>
           <Link href="/counselors">Browse counselor directory</Link>
         </footer>

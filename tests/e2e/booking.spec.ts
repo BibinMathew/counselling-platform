@@ -46,9 +46,9 @@ test("customers can hold and reschedule without concurrent conflicts", async ({
       update public.profiles set role = 'counselor', email = 'counselor@example.test' where id in ('${counselorOne.id}', '${counselorTwo.id}');
       update public.profiles set email = 'customer@example.test' where id in ('${customerTwo.id}', '${customerThree.id}');
       perform set_config('request.jwt.claim.sub', '${admin.id}', true);
-      insert into public.counselors (id, profile_id, display_name, bio, qualifications, experience, specialties, languages, photo_url, published) values
-        ('${counselorIds[0]}', '${counselorOne.id}', 'Booking Test One', 'Bio', 'Degree', 'Experience', 'Stress', 'English', 'https://example.test/one.jpg', true),
-        ('${counselorIds[1]}', '${counselorTwo.id}', 'Booking Test Two', 'Bio', 'Degree', 'Experience', 'Stress', 'English', 'https://example.test/two.jpg', true);
+      insert into public.counselors (id, profile_id, display_name, bio, qualifications, experience, category, specialties, languages, photo_url, published) values
+        ('${counselorIds[0]}', '${counselorOne.id}', 'Booking Test One', 'Bio', 'Degree', 'Experience', 'consultant_psychologist', 'Stress', 'English', 'https://example.test/one.jpg', true),
+        ('${counselorIds[1]}', '${counselorTwo.id}', 'Booking Test Two', 'Bio', 'Degree', 'Experience', 'consultant_psychologist', 'Stress', 'English', 'https://example.test/two.jpg', true);
       perform public.save_availability_exception('${counselorIds[0]}', null, (now() at time zone 'Asia/Kolkata')::date + 2, 'opening', false, '10:00', '14:00');
       perform public.save_availability_exception('${counselorIds[1]}', null, (now() at time zone 'Asia/Kolkata')::date + 2, 'opening', false, '10:00', '14:00');
     end $$;`);

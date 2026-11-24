@@ -2,8 +2,10 @@ import "server-only";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { requireProfileRole } from "@/modules/identity/server/access";
+import { demoCounselors, isCatalogDemoMode } from "@/modules/catalog/demo";
 
 export async function getPublicCounselors() {
+  if (isCatalogDemoMode()) return demoCounselors;
   const supabase = await createSupabaseServerClient();
   const result = await supabase.from("public_counselors").select("*").order("display_name");
   if (result.error) throw new Error("Counselor directory unavailable.");
@@ -11,6 +13,7 @@ export async function getPublicCounselors() {
 }
 
 export async function getPublicCounselor(id: string) {
+  if (isCatalogDemoMode()) return demoCounselors.find((counselor) => counselor.id === id) ?? null;
   const supabase = await createSupabaseServerClient();
   const result = await supabase.from("public_counselors").select("*").eq("id", id).maybeSingle();
   if (result.error) throw new Error("Counselor profile unavailable.");

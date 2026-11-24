@@ -2,7 +2,9 @@ import { getPaymentPrice } from "@/modules/payments/server";
 import { getPublicSessionSettings } from "@/modules/availability/server/availability";
 import { formatPrice } from "@/modules/payments/model";
 import { connection } from "next/server";
-export async function SessionFacts() {
+import { cache } from "react";
+
+const getSessionFacts = cache(async () => {
   await connection();
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY)
     return null;
@@ -13,5 +15,11 @@ export async function SessionFacts() {
   } catch {
     /* Omit unavailable settings; never invent a price. */
   }
+  return facts;
+});
+
+export async function SessionFacts() {
+  const facts = await getSessionFacts();
+  if (!facts) return null;
   return <span className="session-facts">{facts}</span>;
 }

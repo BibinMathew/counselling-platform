@@ -13,8 +13,8 @@ update public.profiles set role = 'counselor', email = 'counselor@example.test' 
 update public.profiles set email = 'customer@example.test' where id in ('cccccccc-3333-4333-8333-333333333333', 'dddddddd-4444-4444-8444-444444444444');
 set local role authenticated;
 select set_config('request.jwt.claim.sub', 'aaaaaaaa-1111-4111-8111-111111111111', true);
-insert into public.counselors (id, profile_id, display_name, bio, qualifications, experience, specialties, languages, photo_url, published)
-values ('eeeeeeee-5555-4555-8555-555555555555', 'bbbbbbbb-2222-4222-8222-222222222222', 'Reschedule Test', 'Bio', 'Degree', 'Experience', 'Specialty', 'English', 'https://example.test/photo.jpg', true);
+insert into public.counselors (id, profile_id, display_name, bio, qualifications, experience, category, specialties, languages, photo_url, published)
+values ('eeeeeeee-5555-4555-8555-555555555555', 'bbbbbbbb-2222-4222-8222-222222222222', 'Reschedule Test', 'Bio', 'Degree', 'Experience', 'consultant_psychologist', 'Specialty', 'English', 'https://example.test/photo.jpg', true);
 select public.save_availability_exception('eeeeeeee-5555-4555-8555-555555555555', null, (now() at time zone 'Asia/Kolkata')::date + 2, 'opening', false, '10:00', '13:00');
 select lives_ok($$select public.set_booking_hold_minutes(10)$$, 'admin can set hold duration');
 select set_config('request.jwt.claim.sub', 'cccccccc-3333-4333-8333-333333333333', true);

@@ -128,7 +128,7 @@ export async function updateOwnProfile(
   });
 
   if (!parsed.success) {
-    return { status: "error", message: "Check the preferred name and email fields." };
+    return { status: "error", message: "Enter a preferred name of up to 80 characters." };
   }
 
   const supabase = await createSupabaseServerClient();

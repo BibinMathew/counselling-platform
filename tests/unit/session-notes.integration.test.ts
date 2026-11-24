@@ -37,8 +37,8 @@ test.skipIf(process.env.RUN_PRIVATE_NOTES_INTEGRATION !== "1")(
         update public.profiles set role='counselor',email='rotation-counselor@example.test' where id='${actor}';
         update public.profiles set email='rotation-customer@example.test' where id='${customer}';
         select set_config('request.jwt.claim.sub','${admin}',true);
-        insert into public.counselors(id,profile_id,display_name,bio,qualifications,experience,specialties,languages,photo_url,published)
-        values('${counselor}','${actor}','Rotation Fixture','Test','Test','Test','Stress','English','https://example.test/a.png',true);
+        insert into public.counselors(id,profile_id,display_name,bio,qualifications,experience,category,specialties,languages,photo_url,published)
+        values('${counselor}','${actor}','Rotation Fixture','Test','Test','Test','consultant_psychologist','Stress','English','https://example.test/a.png',true);
         insert into public.bookings(id,customer_id,counselor_id,start_at,end_at,buffer_end_at,status,hold_expires_at)
         values('${booking}','${customer}','${counselor}',now()-interval '2 days',now()-interval '2 days'+interval '45 minutes',now()-interval '2 days'+interval '1 hour','confirmed',now()-interval '3 days');commit;`);
       const v1 = randomBytes(32).toString("hex"),

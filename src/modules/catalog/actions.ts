@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { requireProfileRole } from "@/modules/identity/server/access";
+import { COUNSELOR_CATEGORY_VALUES } from "@/modules/catalog/categories";
 
 export type CatalogActionState = { status: "idle" | "error" | "success"; message: string };
 
@@ -14,6 +15,7 @@ const schema = z.object({
   bio: z.string().trim().min(1).max(3000),
   qualifications: z.string().trim().min(1).max(1000),
   experience: z.string().trim().min(1).max(500),
+  category: z.enum(COUNSELOR_CATEGORY_VALUES),
   specialties: z.string().trim().min(1).max(1000),
   languages: z.string().trim().min(1).max(500),
   photo_url: z
@@ -33,7 +35,8 @@ export async function saveCounselor(
   if (!parsed.success)
     return {
       status: "error",
-      message: "Check the fields and enter a valid HTTPS image link and counselor account ID.",
+      message:
+        "Check all fields, select a category, and use a valid HTTPS image link and account ID.",
     };
   const { id, profile_id, ...fields } = parsed.data;
   const values = { ...fields, published: formData.get("published") === "on" };
@@ -51,6 +54,7 @@ export async function saveCounselor(
       message: "The profile could not be saved. Check the counselor role and account ID.",
     };
   revalidatePath("/counselors");
+  revalidatePath("/");
   revalidatePath(`/counselors/${result.data.id}`);
   revalidatePath("/admin/counselors");
   return { status: "success", message: "Counselor profile saved." };
@@ -72,6 +76,7 @@ export async function deleteCounselor(
     .maybeSingle();
   if (error || !data) return { status: "error", message: "The profile could not be deleted." };
   revalidatePath("/counselors");
+  revalidatePath("/");
   revalidatePath(`/counselors/${id.data}`);
   revalidatePath("/admin/counselors");
   return { status: "success", message: "Counselor profile deleted." };

@@ -29,7 +29,21 @@ pnpm install --frozen-lockfile
 pnpm dev
 ```
 
-The homepage works without `.env.local`. The counselor catalog and identity routes require the local Supabase stack and the local URL/publishable key; payment processing additionally requires a server-only local service-role key.
+The homepage's counselor showcase, catalog, and identity routes require a configured Supabase URL and publishable key unless the local-only catalog preview below is enabled. The homepage shell may render without them, but that does not verify the showcase. Payment processing additionally requires a server-only local service-role key.
+
+For a database-free counselor-card UX preview, set `CATALOG_DEMO_MODE=local` in ignored `.env.local` while using a loopback Supabase URL and `pnpm dev`. The preview supplies visibly fictional, non-bookable sample profiles; it cannot run against a hosted Supabase URL and must stay disabled outside local development.
+
+## Proposed private staging policy
+
+This is preparation for review, not deployment authorization. Local development and CI continue to use Node.js `26.13.1` and pnpm `12.21.0`; `package.json` still requires the exact Node version and `.npmrc` enables strict engine checks.
+
+Vercel selects a Node major version and automatically updates minor and patch versions; build and function runtime versions can differ. The proposed staging approach is to allow Node `26.x` in the package engine while retaining the exact local and CI pin. That would broaden the engine requirement for all installs, not just staging, and conflicts with the current exact-version project rule. It has not been applied and needs an approved change to that rule before implementation. Testing the exact local pin alone would not prove compatibility with Vercel's floating runtime. Vercel's lockfile-based package-manager selection also does not by itself establish pnpm `12.21.0`; a future deployment must configure and verify the exact version, for example using Vercel's documented Corepack support.
+
+Before any hosted work, separately approve the deployment scope, access method, isolated Supabase project and data/authentication approach. Fictional counselor profiles are prohibited in hosted environments by the product requirements; do not seed them or enable local demo modes. No real customer data or local test OTPs may be copied. Keep payments, notifications, private workspace and feedback disabled unless separately approved. The catalog depends on Supabase even for the landing page showcase.
+
+For private review, protection must cover the custom subdomain and all generated URLs before any review content is exposed. Vercel Standard Protection excludes production domains; select and verify an appropriate protection scope and method for the actual domain assignment and plan. Obtain DNS and project-owner approval separately; leave the existing apex site unchanged. Verify HTTPS, unauthenticated denial on every URL, authorized access, the chosen login and catalog behavior, and rollback before inviting reviewers. This is not a production launch plan or evidence of hosted compatibility.
+
+References: [Vercel Node.js versions](https://vercel.com/docs/functions/runtimes/node-js/node-js-versions), [package managers](https://vercel.com/docs/package-managers), and [deployment protection](https://vercel.com/docs/deployment-protection).
 
 ## Local Auth and Database
 

@@ -3,7 +3,7 @@ import { expect, test } from "@playwright/test";
 test("homepage loads", async ({ page }) => {
   await page.goto("/");
   await expect(
-    page.getByRole("heading", { name: "Space to pause. Someone to talk to." }),
+    page.getByRole("heading", { name: "A little hello can be the start of feeling better." }),
   ).toBeVisible();
 });
 
@@ -23,7 +23,9 @@ test("local customer can sign in and is denied the admin area", async ({ page })
   await page.getByRole("button", { name: "Verify code" }).click();
 
   const emailField = page.getByLabel("Email address");
-  const contactEmailText = page.getByText(/^Contact email: .+$/);
+  const contactEmailText = page
+    .locator(".profile-details div")
+    .filter({ hasText: "Contact email" });
   await expect(emailField.or(contactEmailText)).toBeVisible();
 
   let expectedEmail = "local.customer@example.test";
@@ -33,17 +35,19 @@ test("local customer can sign in and is denied the admin area", async ({ page })
     await expect(page.getByRole("status")).toContainText("Contact email saved.");
     await page.getByRole("link", { name: "Continue to profile" }).click();
   } else {
-    expectedEmail = (await contactEmailText.textContent())?.replace("Contact email: ", "") ?? "";
+    expectedEmail = (await contactEmailText.locator("dd").first().textContent()) ?? "";
   }
 
-  await expect(page.getByText(`Contact email: ${expectedEmail}`)).toBeVisible();
-  await expect(page.getByText("Preferred name: Local Customer")).toBeVisible();
-  await expect(page.getByText("Role: customer")).toBeVisible();
+  await expect(contactEmailText).toContainText(expectedEmail);
+  await expect(page.getByLabel("Preferred name", { exact: true })).toHaveValue("Local Customer");
+  await expect(page.getByText("Account role")).toHaveCount(0);
   await page.getByLabel("Preferred name", { exact: true }).fill("Updated Local Customer");
   await page.getByRole("button", { name: "Save profile" }).click();
   await expect(page.getByText("Profile updated.")).toBeVisible();
   await page.reload();
-  await expect(page.getByText("Preferred name: Updated Local Customer")).toBeVisible();
+  await expect(page.getByLabel("Preferred name", { exact: true })).toHaveValue(
+    "Updated Local Customer",
+  );
   await page.goto("/customer");
   await expect(page.getByText("Signed in as Updated Local Customer.")).toBeVisible();
   await page.goto("/admin");

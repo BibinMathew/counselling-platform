@@ -13,8 +13,8 @@ update public.profiles set email='fixture@example.test' where id::text like 'f10
 update public.profiles set role='admin' where id='f1000000-0000-4000-8000-000000000001';
 update public.profiles set role='counselor' where id='f1000000-0000-4000-8000-000000000002';
 select set_config('request.jwt.claim.sub','f1000000-0000-4000-8000-000000000001',true);
-insert into public.counselors(id,profile_id,display_name,bio,qualifications,experience,specialties,languages,photo_url,published)
- values('f2000000-0000-4000-8000-000000000001','f1000000-0000-4000-8000-000000000002','Payment Fixture','Test','Test','Test','Test','English','https://example.test/image.png',true);
+insert into public.counselors(id,profile_id,display_name,bio,qualifications,experience,category,specialties,languages,photo_url,published)
+ values('f2000000-0000-4000-8000-000000000001','f1000000-0000-4000-8000-000000000002','Payment Fixture','Test','Test','Test','consultant_psychologist','Test','English','https://example.test/image.png',true);
 select public.save_availability_exception('f2000000-0000-4000-8000-000000000001',null,(now() at time zone 'Asia/Kolkata')::date+2,'opening',false,'08:00','23:00');
 create temp table fixture(n integer primary key, booking uuid, ord uuid, start_at timestamptz);
 grant all on fixture to authenticated;

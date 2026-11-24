@@ -83,6 +83,7 @@ test("admin manages a counselor profile visible to visitors", async ({
     await create.getByLabel("Display name").fill("Catalog Test Counselor");
     await create.getByLabel("Biography").fill("A synthetic counselor profile.");
     await create.getByLabel("Qualifications").fill("Test qualification");
+    await create.getByLabel("Category").selectOption("consultant_psychologist");
     await create.getByLabel("Experience").fill("Five years");
     await create.getByLabel("Specializations").fill("Stress");
     await create.getByLabel("Languages").fill("English");

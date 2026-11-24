@@ -38,8 +38,8 @@ test("customer portal history, rebooking, checkout continuity and ownership", as
    update public.profiles set role='counselor',email='counselor@example.test' where id='${counselorUser.id}';
    update public.profiles set email='customer@example.test' where id in('${customer.id}','${other.id}');
    perform set_config('request.jwt.claim.sub','${admin.id}',true);
-   insert into public.counselors(id,profile_id,display_name,bio,qualifications,experience,specialties,languages,photo_url,published)
-   values('${counselor}','${counselorUser.id}','Portal Browser Fixture','Test','Test','Test','Stress','English','https://example.test/a.png',true);
+   insert into public.counselors(id,profile_id,display_name,bio,qualifications,experience,category,specialties,languages,photo_url,published)
+   values('${counselor}','${counselorUser.id}','Portal Browser Fixture','Test','Test','Test','consultant_psychologist','Stress','English','https://example.test/a.png',true);
    perform public.save_availability_exception('${counselor}',null,(now() at time zone 'Asia/Kolkata')::date+2,'opening',false,'09:00','18:00');
   end $$;`);
     const signIn = async (target: typeof page, user: { phone: string }) => {
@@ -61,8 +61,8 @@ test("customer portal history, rebooking, checkout continuity and ownership", as
 
     localDb(`begin;select set_config('request.jwt.claim.sub','${admin.id}',true);
       update public.profiles set role='counselor',email='alternate@example.test' where id='${secondCounselorUser.id}';
-      insert into public.counselors(id,profile_id,display_name,bio,qualifications,experience,specialties,languages,photo_url,published)
-      values('${secondCounselor}','${secondCounselorUser.id}','Portal Alternate Fixture','Test','Test','Test','Stress','English','https://example.test/b.png',true);
+      insert into public.counselors(id,profile_id,display_name,bio,qualifications,experience,category,specialties,languages,photo_url,published)
+      values('${secondCounselor}','${secondCounselorUser.id}','Portal Alternate Fixture','Test','Test','Test','consultant_psychologist','Stress','English','https://example.test/b.png',true);
       select public.save_availability_exception('${secondCounselor}',null,(now() at time zone 'Asia/Kolkata')::date+3,'opening',false,'10:00','15:00');commit;`);
     const pastBooking = randomUUID();
     const legacyBooking = randomUUID();

@@ -14,8 +14,8 @@ update public.profiles set role = 'admin' where id = '11111111-1111-4111-8111-11
 update public.profiles set role = 'counselor' where id = '22222222-2222-4222-8222-222222222222';
 set local role authenticated;
 select set_config('request.jwt.claim.sub', '11111111-1111-4111-8111-111111111111', true);
-insert into public.counselors (id, profile_id, display_name, bio, qualifications, experience, specialties, languages, photo_url, published)
-values ('44444444-4444-4444-8444-444444444444', '22222222-2222-4222-8222-222222222222', 'Availability Test', 'Bio', 'Degree', 'Experience', 'Specialty', 'English', 'https://example.test/photo.jpg', true);
+insert into public.counselors (id, profile_id, display_name, bio, qualifications, experience, category, specialties, languages, photo_url, published)
+values ('44444444-4444-4444-8444-444444444444', '22222222-2222-4222-8222-222222222222', 'Availability Test', 'Bio', 'Degree', 'Experience', 'consultant_psychologist', 'Specialty', 'English', 'https://example.test/photo.jpg', true);
 select lives_ok($$select public.set_availability_settings(45, 15, 60, 10)$$, 'admin can set scheduling rules');
 select set_config('request.jwt.claim.sub', '22222222-2222-4222-8222-222222222222', true);
 select lives_ok($$select public.save_availability_rule('44444444-4444-4444-8444-444444444444', null, 3, '10:00', '13:00')$$, 'counselor can add own weekly hours');
